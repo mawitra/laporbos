@@ -8,16 +8,27 @@ class AuthHandler {
 
   Future<void> handleLogin(
       BuildContext context, String username, String password) async {
-    try {
-      await authService.login(username, password);
-      // Tindakan setelah berhasil login, misalnya navigasi ke layar beranda
-      Navigator.pushReplacementNamed(context, '/dashboard/home');
-    } catch (e) {
-      // Tindakan jika login gagal, misalnya menampilkan pesan kesalahan
+    if (username.isEmpty || password.isEmpty) {
+      // Menampilkan pesan jika username atau password kosong
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content:
-              Text('Login gagal. Periksa kembali username dan password Anda.'),
+          content: Text('Username dan password tidak boleh kosong.'),
+        ),
+      );
+      return;
+    }
+
+    try {
+      // Memanggil metode login dari AuthService
+      await authService.login(username, password);
+
+      // Jika login berhasil, navigasikan ke halaman beranda (misalnya '/home')
+      Navigator.pushReplacementNamed(context, '/home');
+    } catch (e) {
+      // Jika terjadi kesalahan, menampilkan pesan kesalahan
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Login gagal. Silakan periksa kredensial Anda.'),
         ),
       );
     }

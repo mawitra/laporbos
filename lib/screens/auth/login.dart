@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -98,6 +98,7 @@ class _LoginState extends State<Login> {
                                 child: Column(
                                   children: [
                                     TextInput(
+                                      controller: usernameController,
                                       placeholder: "Username / Nomor Whatsapp",
                                       validasi:
                                           '* Username / Nomor Whatsapp tidak boleh kosong',
@@ -106,10 +107,10 @@ class _LoginState extends State<Login> {
                                       height: 20.h,
                                     ),
                                     InputPassword(
-                                      controller: TextEditingController(),
+                                      controller: passwordController,
                                       sandi: "Masukan Kata Sandi",
                                       validasi:
-                                          "* Kata sandi harus dari 8 - 16 karakter ",
+                                          "* Kata sandi harus dari 8 - 16 karakter",
                                     ),
                                     SizedBox(
                                       height: 20.h,
@@ -153,12 +154,10 @@ class _LoginState extends State<Login> {
                                       width: double.infinity,
                                       child: TextButton(
                                         onPressed: () {
-                                          // Aksi yang ingin Anda lakukan saat tombol ditekan
                                           AuthHandler().handleLogin(
-                                            context,
-                                            usernameController.text,
-                                            passwordController.text,
-                                          );
+                                              context,
+                                              usernameController.text,
+                                              passwordController.text);
                                         },
                                         child: Text(
                                           "Login",
@@ -243,7 +242,7 @@ class InputPassword extends StatefulWidget {
     required this.validasi,
   }) : super(key: key);
 
-  final TextEditingController controller;
+  final TextEditingController controller; // Gunakan controller yang diberikan
   final String sandi;
   final String validasi;
 
@@ -253,7 +252,6 @@ class InputPassword extends StatefulWidget {
 
 class _InputPasswordState extends State<InputPassword> {
   var obscureText = true;
-  String? inputValue;
 
   @override
   Widget build(BuildContext context) {
@@ -264,10 +262,14 @@ class _InputPasswordState extends State<InputPassword> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             TextFormField(
-              cursorColor: AppColor.primaryColor,
-              style: TextStyle(color: AppColor.primaryColor),
+              cursorColor:
+                  AppColor.primaryColor, // Ganti dengan warna yang sesuai
+              style: TextStyle(
+                  color:
+                      AppColor.primaryColor), // Ganti dengan warna yang sesuai
               obscureText: obscureText,
-              controller: widget.controller,
+              controller:
+                  widget.controller, // Gunakan controller yang diberikan
               decoration: InputDecoration(
                 prefixIcon: Icon(
                   Icons.lock, // Ikon di kiri
@@ -275,7 +277,8 @@ class _InputPasswordState extends State<InputPassword> {
                   size: 20, // Ukuran ikon
                 ),
                 hintText: widget.sandi,
-                hintStyle: TextStyle(color: AppColor.hintColor),
+                hintStyle: TextStyle(
+                    color: Colors.grey), // Ganti dengan warna yang sesuai
                 suffixIcon: GestureDetector(
                   onTap: () {
                     setState(() {
@@ -284,12 +287,13 @@ class _InputPasswordState extends State<InputPassword> {
                   },
                   child: obscureText
                       ? Icon(Icons.visibility_off, color: AppColor.primaryColor)
-                      : Icon(Icons.visibility, color: AppColor.sekunderColor),
+                      : Icon(Icons.visibility,
+                          color: Colors
+                              .red), // Sesuaikan warna ikon sesuai kebutuhan
                 ),
                 enabledBorder: UnderlineInputBorder(
                   borderSide: BorderSide(
-                    color: AppColor
-                        .strokeColor, // Ganti dengan warna yang Anda inginkan
+                    color: Colors.grey, // Ganti dengan warna yang sesuai
                   ),
                 ),
                 focusedBorder: UnderlineInputBorder(
@@ -299,11 +303,6 @@ class _InputPasswordState extends State<InputPassword> {
                   ),
                 ),
               ),
-              onChanged: (value) {
-                setState(() {
-                  inputValue = value;
-                });
-              },
               validator: (value) {
                 if (value == null || value.isEmpty) {
                   return widget.validasi;
@@ -323,10 +322,12 @@ class TextInput extends StatefulWidget {
     super.key,
     required this.placeholder,
     required this.validasi,
+    required this.controller,
   });
 
   final String placeholder;
   final String validasi;
+  final TextEditingController controller; // Gunakan controller yang diberikan
 
   @override
   State<TextInput> createState() => _TextInputState();
@@ -347,6 +348,7 @@ class _TextInputState extends State<TextInput> {
               child: TextFormField(
                 cursorColor: AppColor.primaryColor,
                 autocorrect: false,
+                controller: widget.controller,
                 style: TextStyle(color: AppColor.primaryColor),
                 decoration: InputDecoration(
                   prefixIcon: Icon(
