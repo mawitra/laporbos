@@ -1,34 +1,56 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
 import 'package:laporbos/service/AuthService.dart';
+import 'package:laporbos/screens/dashboard/home.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'dart:async';
 
 class AuthHandler {
-  final AuthService authService = AuthService();
+  final BuildContext context;
 
-  Future<void> handleLogin(
-      BuildContext context, String username, String password) async {
-    if (username.isEmpty || password.isEmpty) {
-      // Menampilkan pesan jika username atau password kosong
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Username dan password tidak boleh kosong.'),
-        ),
-      );
-      return;
-    }
+  String? authToken; // Store the access token
+  DateTime? tokenExpirationTime; // Store the expiration time
+  // Timer? tokenRefreshTimer; // Timer for redirecting after token expiration
+
+  AuthHandler(this.context);
+
+  Future<void> handleLogin(String username, String password) async {
+    final url = Uri.parse('http://192.168.18.158:8000/api/login/officer');
 
     try {
-      // Memanggil metode login dari AuthService
-      await authService.login(username, password);
+      final response = await http.post(
+        url,
+        body: {
+          'username': username,
+          'password': password,
+        },
+      ).timeout(const Duration(seconds: 15));
 
-      // Jika login berhasil, navigasikan ke halaman beranda (misalnya '/home')
-      Navigator.pushReplacementNamed(context, '/home');
+      if (response.statusCode == 200) {
+        final responseData = json.decode(response.body);
+        authToken = responseData['access_token'];
+        final expiresIn = responseData['expires_in'];
+        tokenExpirationTime = DateTime.now().add(
+          Duration(seconds: expiresIn),
+        );
+        Navigator.of(context).pushReplacement(MaterialPageRoute(
+          builder: (context) => HomeSuperAdmin(),
+        ));
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Login failed. Please check your credentials.'),
+          ),
+        );
+      }
     } catch (e) {
-      // Jika terjadi kesalahan, menampilkan pesan kesalahan
+      print('Error: $e');
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Login gagal. Silakan periksa kredensial Anda.'),
+          content: Text('An error occurred. Please try again later.'),
         ),
       );
     }

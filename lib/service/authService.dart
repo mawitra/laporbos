@@ -1,10 +1,14 @@
+// ignore_for_file: unused_local_variable, use_build_context_synchronously, prefer_const_constructors, avoid_print, non_constant_identifier_names, unused_import
+
+import 'dart:async';
+
+import 'package:flutter/material.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 class AuthService {
-  Future<void> login(String username, String password) async {
-    final url = Uri.parse(
-        'http://localhost:8000/api/login/officer'); // Ganti URL sesuai dengan URL login API Anda.
+  Future<Map<String, dynamic>?> login(String username, String password) async {
+    final url = Uri.parse('http://192.168.18.158:8000/api/login/officer');
 
     try {
       final response = await http.post(
@@ -13,29 +17,18 @@ class AuthService {
           'username': username,
           'password': password,
         },
-      );
+      ).timeout(const Duration(seconds: 15));
 
       if (response.statusCode == 200) {
-        // Jika respons kode adalah 200, berarti login berhasil.
-        // Anda dapat menangani respons sesuai kebutuhan, seperti menyimpan token autentikasi.
-        final responseData = jsonDecode(response.body);
-        final authToken =
-            responseData['token']; // Contoh cara menyimpan token autentikasi.
-
-        // Selain itu, Anda bisa melakukan tindakan lain seperti menyimpan data pengguna, dll.
-      } else {
-        // Jika respons kode adalah selain 200, berarti login gagal.
-        // Anda bisa menangani pesan kesalahan dari API sesuai kebutuhan.
-        final responseBody = jsonDecode(response.body);
-        final errorMessage =
-            responseBody['message']; // Pesan kesalahan dari API.
-
-        throw Exception(
-            errorMessage); // Anda bisa melempar kesalahan dengan pesan kesalahan dari API.
+        final responseData = json.decode(response.body);
+        return {
+          'access_token': responseData['access_token'],
+          'expires_in': responseData['expires_in'],
+        };
       }
     } catch (e) {
-      // Tangani kesalahan jaringan atau kesalahan lainnya.
-      throw Exception('Gagal melakukan login: $e');
+      print('Error: $e');
     }
+    return null;
   }
 }

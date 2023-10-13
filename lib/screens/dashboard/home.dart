@@ -13,8 +13,15 @@ class _HomeState extends State<Home> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: Container(
-        child: Row(children: [Text('babi')]),
+      body: Center(
+        // Untuk mengatur teks ke tengah
+        child: Text(
+          'Welcome Dashboard',
+          style: TextStyle(
+            fontSize: 32, // Ukuran teks
+            fontWeight: FontWeight.bold, // Ketebalan teks
+          ),
+        ),
       ),
     );
   }

@@ -1,10 +1,20 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unused_local_variable, use_build_context_synchronously, avoid_print, library_prefixes, unused_import
+
+import 'dart:async';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/handler/authHandler.dart';
+import 'package:laporbos/service/AuthService.dart';
+
 import 'package:laporbos/screens/auth/register.dart';
+import 'package:laporbos/screens/dashboard/home.dart';
+import 'package:laporbos/widget/auth/inputauth.dart' as AuthWidgets;
+import 'package:laporbos/widget/auth/inputpassword.dart' as AuthWidgets;
+
 import 'package:laporbos/color.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 class Login extends StatefulWidget {
   const Login({super.key});
@@ -16,6 +26,13 @@ class Login extends StatefulWidget {
 class _LoginState extends State<Login> {
   final TextEditingController usernameController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  void handleLogin() {
+    AuthHandler(context).handleLogin(
+      usernameController.text,
+      passwordController.text,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -97,7 +114,7 @@ class _LoginState extends State<Login> {
                               child: SingleChildScrollView(
                                 child: Column(
                                   children: [
-                                    TextInput(
+                                    AuthWidgets.TextInput(
                                       controller: usernameController,
                                       placeholder: "Username / Nomor Whatsapp",
                                       validasi:
@@ -106,7 +123,7 @@ class _LoginState extends State<Login> {
                                     SizedBox(
                                       height: 20.h,
                                     ),
-                                    InputPassword(
+                                    AuthWidgets.InputPassword(
                                       controller: passwordController,
                                       sandi: "Masukan Kata Sandi",
                                       validasi:
@@ -153,12 +170,7 @@ class _LoginState extends State<Login> {
                                       ),
                                       width: double.infinity,
                                       child: TextButton(
-                                        onPressed: () {
-                                          AuthHandler().handleLogin(
-                                              context,
-                                              usernameController.text,
-                                              passwordController.text);
-                                        },
+                                        onPressed: handleLogin,
                                         child: Text(
                                           "Login",
                                           style: TextStyle(
@@ -234,159 +246,61 @@ class _LoginState extends State<Login> {
   }
 }
 
-class InputPassword extends StatefulWidget {
-  const InputPassword({
-    Key? key,
-    required this.controller,
-    required this.sandi,
-    required this.validasi,
-  }) : super(key: key);
+// class AuthHandler {
+//   final BuildContext context;
 
-  final TextEditingController controller; // Gunakan controller yang diberikan
-  final String sandi;
-  final String validasi;
+//   String? authToken; // Store the access token
+//   DateTime? tokenExpirationTime; // Store the expiration time
+//   Timer? tokenRefreshTimer; // Timer for redirecting after token expiration
 
-  @override
-  State<InputPassword> createState() => _InputPasswordState();
-}
+//   AuthHandler(this.context);
 
-class _InputPasswordState extends State<InputPassword> {
-  var obscureText = true;
+//   Future<void> handleLogin(String username, String password) async {
+//     final url = Uri.parse('http://192.168.18.158:8000/api/login/officer');
 
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Form(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            TextFormField(
-              cursorColor:
-                  AppColor.primaryColor, // Ganti dengan warna yang sesuai
-              style: TextStyle(
-                  color:
-                      AppColor.primaryColor), // Ganti dengan warna yang sesuai
-              obscureText: obscureText,
-              controller:
-                  widget.controller, // Gunakan controller yang diberikan
-              decoration: InputDecoration(
-                prefixIcon: Icon(
-                  Icons.lock, // Ikon di kiri
-                  color: AppColor.primaryColor, // Warna ikon
-                  size: 20, // Ukuran ikon
-                ),
-                hintText: widget.sandi,
-                hintStyle: TextStyle(
-                    color: Colors.grey), // Ganti dengan warna yang sesuai
-                suffixIcon: GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      obscureText = !obscureText;
-                    });
-                  },
-                  child: obscureText
-                      ? Icon(Icons.visibility_off, color: AppColor.primaryColor)
-                      : Icon(Icons.visibility,
-                          color: Colors
-                              .red), // Sesuaikan warna ikon sesuai kebutuhan
-                ),
-                enabledBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color: Colors.grey, // Ganti dengan warna yang sesuai
-                  ),
-                ),
-                focusedBorder: UnderlineInputBorder(
-                  borderSide: BorderSide(
-                    color:
-                        AppColor.primaryColor, // Warna border saat dalam fokus
-                  ),
-                ),
-              ),
-              validator: (value) {
-                if (value == null || value.isEmpty) {
-                  return widget.validasi;
-                }
-                return null;
-              },
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//     try {
+//       final response = await http.post(
+//         url,
+//         body: {
+//           'username': username,
+//           'password': password,
+//         },
+//       ).timeout(const Duration(seconds: 15));
 
-class TextInput extends StatefulWidget {
-  const TextInput({
-    super.key,
-    required this.placeholder,
-    required this.validasi,
-    required this.controller,
-  });
+//       if (response.statusCode == 200) {
+//         final responseData = json.decode(response.body);
+//         authToken = responseData['access_token'];
+//         final expiresIn = responseData['expires_in'];
+//         tokenExpirationTime = DateTime.now().add(
+//           Duration(seconds: expiresIn),
+//         );
+//         tokenRefreshTimer = Timer(
+//           Duration(minutes: 5), // Set to 5 minutes
+//           () {
+//             Navigator.of(context).pushReplacement(MaterialPageRoute(
+//               builder: (context) =>
+//                   Login(), // Replace with the appropriate login page
+//             ));
+//           },
+//         );
 
-  final String placeholder;
-  final String validasi;
-  final TextEditingController controller; // Gunakan controller yang diberikan
-
-  @override
-  State<TextInput> createState() => _TextInputState();
-}
-
-class _TextInputState extends State<TextInput> {
-  String? inputValue;
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      child: Form(
-        autovalidateMode: AutovalidateMode.onUserInteraction,
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            SizedBox(
-              child: TextFormField(
-                cursorColor: AppColor.primaryColor,
-                autocorrect: false,
-                controller: widget.controller,
-                style: TextStyle(color: AppColor.primaryColor),
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.account_circle,
-                    color: AppColor.primaryColor,
-                    size: 20.sp,
-                  ),
-                  hintText: widget.placeholder,
-                  hintStyle: TextStyle(
-                    color: AppColor.hintColor,
-                  ),
-                  enabledBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: AppColor.strokeColor,
-                    ),
-                  ),
-                  focusedBorder: UnderlineInputBorder(
-                    borderSide: BorderSide(
-                      color: AppColor.primaryColor,
-                    ),
-                  ),
-                ),
-                onChanged: (value) {
-                  setState(() {
-                    inputValue = value;
-                  });
-                },
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return widget.validasi;
-                  }
-                  return null;
-                },
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
+//         Navigator.of(context).pushReplacement(MaterialPageRoute(
+//           builder: (context) => Home(),
+//         ));
+//       } else {
+//         ScaffoldMessenger.of(context).showSnackBar(
+//           SnackBar(
+//             content: Text('Login failed. Please check your credentials.'),
+//           ),
+//         );
+//       }
+//     } catch (e) {
+//       print('Error: $e');
+//       ScaffoldMessenger.of(context).showSnackBar(
+//         SnackBar(
+//           content: Text('An error occurred. Please try again later.'),
+//         ),
+//       );
+//     }
+//   }
+// }
