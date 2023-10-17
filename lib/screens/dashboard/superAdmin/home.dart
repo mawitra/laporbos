@@ -3,7 +3,10 @@
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
+import 'package:laporbos/screens/auth/login.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/customer/customer.dart';
+import 'package:laporbos/screens/dashboard/superAdmin/laporan/daftar_laporan.dart';
+import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
 
 class HomeSuperAdmin extends StatefulWidget {
   const HomeSuperAdmin({Key? key}) : super(key: key);
@@ -531,11 +534,13 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
       ),
       bottomNavigationBar: Container(
         height: 55,
+        // color: Colors.deepOrange.shade50,
         child: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
           currentIndex: _currentIndex,
           selectedItemColor: AppColor.primaryColor, // Ganti sesuai kebutuhan
           unselectedItemColor: Colors.black,
+          backgroundColor: Colors.deepOrange.shade50,
           items: [
             BottomNavigationBarItem(
               icon: Icon(
@@ -563,6 +568,16 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
                     ListCustomer(), // Navigate to the login screen
+              ));
+            } else if (index == 2) {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) =>
+                    DaftarPetugas(), // Navigate to the login screen
+              ));
+            } else if (index == 3) {
+              Navigator.of(context).push(MaterialPageRoute(
+                builder: (context) =>
+                    DaftarLaporan(), // Navigate to the login screen
               ));
             } else {
               setState(() {
@@ -612,6 +627,15 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
               title: Text('Reports'),
               onTap: () {
                 // Add action when Reports menu is clicked
+              },
+            ),
+            ListTile(
+              title: Text('Logout'),
+              onTap: () {
+                // Add action when Reports menu is clicked
+                Navigator.of(context).pushReplacement(MaterialPageRoute(
+                  builder: (context) => Login(),
+                ));
               },
             ),
           ],

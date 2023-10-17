@@ -18,7 +18,7 @@ class AuthHandler {
   AuthHandler(this.context);
 
   Future<void> handleLogin(String username, String password) async {
-    final url = Uri.parse('http://192.168.18.158:8000/api/login/officer');
+    final url = Uri.parse('http://192.168.18.158:8000/api/login');
 
     try {
       final response = await http.post(

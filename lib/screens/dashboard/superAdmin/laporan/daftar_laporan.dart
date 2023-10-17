@@ -1,60 +1,45 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
-import 'package:laporbos/screens/dashboard/home.dart';
-// import 'package:laporbos/screens/dashboard/home.dart';
+import 'package:laporbos/screens/dashboard/superAdmin/customer/customer.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/laporan/daftar_laporan.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
 
-class ListCustomer extends StatefulWidget {
-  const ListCustomer({super.key});
+class DaftarLaporan extends StatefulWidget {
+  const DaftarLaporan({super.key});
 
   @override
-  State<ListCustomer> createState() => _ListCustomerState();
+  State<DaftarLaporan> createState() => _DaftarLaporanState();
 }
 
-class _ListCustomerState extends State<ListCustomer> {
-  int _currentIndex = 1;
+class _DaftarLaporanState extends State<DaftarLaporan> {
+  int _currentIndex = 3;
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.deepOrange.shade50,
       appBar: AppBar(
-        leading: Builder(
-          builder: (BuildContext context) {
-            return IconButton(
-              icon: Icon(Icons.menu, color: Colors.black),
-              onPressed: () {
-                Scaffold.of(context).openDrawer();
-              },
-            );
+        leading: IconButton(
+          icon: Icon(Icons.menu, color: Colors.black),
+          onPressed: () {
+            // Tambahkan aksi yang ingin Anda lakukan saat ikon tiga garis diklik
+            // Misalnya, untuk membuka drawer
+            Scaffold.of(context).openDrawer();
           },
         ),
-        backgroundColor: Colors.deepOrange.shade50,
-        elevation: 0,
+        backgroundColor: Colors.deepOrange
+            .shade50, // Atur latar belakang AppBar menjadi transparan
+        elevation: 0, // Hapus shadow dari AppBar
       ),
-      body: SafeArea(
-        child: SingleChildScrollView(
-          child: Column(
-            children: [
-              // Add a search bar
-              Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: TextField(
-                  decoration: InputDecoration(
-                    labelText: 'Search',
-                    prefixIcon: Icon(Icons.search),
-                  ),
-                  onChanged: (value) {
-                    // Implement search functionality
-                    // You can filter customerData based on the search value
-                  },
-                ),
-              ),
-            ],
+      body: Center(
+        // Untuk mengatur teks ke tengah
+        child: Text(
+          ' laporan',
+          style: TextStyle(
+            fontSize: 32, // Ukuran teks
+            fontWeight: FontWeight.bold, // Ketebalan teks
           ),
         ),
       ),
@@ -101,10 +86,10 @@ class _ListCustomerState extends State<ListCustomer> {
                 builder: (context) =>
                     DaftarPetugas(), // Navigate to the login screen
               ));
-            } else if (index == 3) {
+            } else if (index == 1) {
               Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) =>
-                    DaftarLaporan(), // Navigate to the login screen
+                    ListCustomer(), // Navigate to the login screen
               ));
             } else {
               setState(() {
