@@ -4,7 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:laporbos/screens/auth/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/screens/auth/register.dart';
+import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
+import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 
 void main() {
   runApp(const MyApp());
@@ -20,7 +22,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Login(),
+          home: Bottom(),
         );
       },
     );

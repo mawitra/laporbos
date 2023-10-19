@@ -8,14 +8,14 @@ import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/laporan/daftar_laporan.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
 
-class ListCustomer extends StatefulWidget {
-  const ListCustomer({super.key});
+class HadirbosHome extends StatefulWidget {
+  const HadirbosHome({super.key});
 
   @override
-  State<ListCustomer> createState() => _ListCustomerState();
+  State<HadirbosHome> createState() => _HadirbosHomeState();
 }
 
-class _ListCustomerState extends State<ListCustomer>
+class _HadirbosHomeState extends State<HadirbosHome>
     with AutomaticKeepAliveClientMixin {
   int _currentIndex = 1;
   @override

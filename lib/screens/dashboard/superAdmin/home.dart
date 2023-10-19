@@ -18,6 +18,7 @@ class HomeSuperAdmin extends StatefulWidget {
 class _HomeSuperAdminState extends State<HomeSuperAdmin> {
   int _currentIndex = 0;
   bool isHovered = false;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -532,6 +533,12 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
           ),
         ),
       ),
+      // body: SafeArea(
+      //   child: Container(
+      //     color: Colors.deepOrange.shade50,
+      //     child: _pages[_currentIndex],
+      //   ),
+      // ),
       bottomNavigationBar: Container(
         height: 55,
         // color: Colors.deepOrange.shade50,
@@ -569,21 +576,10 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
                 builder: (context) =>
                     ListCustomer(), // Navigate to the login screen
               ));
-            } else if (index == 2) {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    DaftarPetugas(), // Navigate to the login screen
-              ));
-            } else if (index == 3) {
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    DaftarLaporan(), // Navigate to the login screen
-              ));
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
             }
+            setState(() {
+              _currentIndex = index;
+            });
           },
         ),
       ),

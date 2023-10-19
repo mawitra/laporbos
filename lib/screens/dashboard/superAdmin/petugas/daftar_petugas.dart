@@ -13,11 +13,16 @@ class DaftarPetugas extends StatefulWidget {
   State<DaftarPetugas> createState() => _DaftarPetugasState();
 }
 
-class _DaftarPetugasState extends State<DaftarPetugas> {
+class _DaftarPetugasState extends State<DaftarPetugas>
+    with AutomaticKeepAliveClientMixin {
   int _currentIndex = 2;
 
   @override
+  bool get wantKeepAlive => true;
+  @override
   Widget build(BuildContext context) {
+    super.build(context);
+
     return Scaffold(
       backgroundColor: Colors.deepOrange.shade50,
       appBar: AppBar(
@@ -76,26 +81,21 @@ class _DaftarPetugasState extends State<DaftarPetugas> {
           ],
           onTap: (index) {
             if (index == 0) {
-              // Check if "Pelanggan" icon is clicked
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    HomeSuperAdmin(), // Navigate to the login screen
+                builder: (context) => HomeSuperAdmin(),
               ));
-            } else if (index == 1) {
+            } else if (index == 2) {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    ListCustomer(), // Navigate to the login screen
+                builder: (context) => DaftarPetugas(),
               ));
             } else if (index == 3) {
               Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    DaftarLaporan(), // Navigate to the login screen
+                builder: (context) => DaftarLaporan(),
               ));
-            } else {
-              setState(() {
-                _currentIndex = index;
-              });
             }
+            setState(() {
+              _currentIndex = index;
+            });
           },
         ),
       ),
