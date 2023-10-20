@@ -491,13 +491,11 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
                                               CrossAxisAlignment.start,
                                           children: [
                                             Align(
-                                              alignment: Alignment
-                                                  .center, // Mengatur posisi ikon dan teks ke tengah
+                                              alignment: Alignment.center,
                                               child: Icon(
                                                 Icons.my_library_books_sharp,
-                                                color: Colors
-                                                    .orange, // Warna ikon grup
-                                                size: 50.sp, // Ukuran ikon grup
+                                                color: Colors.orange,
+                                                size: 50.sp,
                                               ),
                                             ),
                                             SizedBox(height: 5.h),

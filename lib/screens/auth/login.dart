@@ -8,7 +8,7 @@ import 'package:laporbos/handler/authHandler.dart';
 import 'package:laporbos/service/AuthService.dart';
 
 import 'package:laporbos/screens/auth/register.dart';
-import 'package:laporbos/screens/dashboard/home.dart';
+// import 'package:laporbos/screens/dashboard/home.dart';
 import 'package:laporbos/widget/auth/inputauth.dart' as AuthWidgets;
 import 'package:laporbos/widget/auth/inputpassword.dart' as AuthWidgets;
 

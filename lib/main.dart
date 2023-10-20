@@ -27,21 +27,4 @@ class MyApp extends StatelessWidget {
       },
     );
   }
-
-  // Widget build(BuildContext context) {
-  //   return ScreenUtilInit(
-  //       designSize: const Size(360, 850),
-  //       builder: (context, child) {
-  //         return MultiProvider(
-  //           providers: [
-  //             ChangeNotifierProvider(create: (_) => AuthenticationProvider()),
-  //             ChangeNotifierProvider(create: (_) => DatabaseProvider()),
-  //           ],
-  //           child: MaterialApp(
-  //             debugShowCheckedModeBanner: false,
-  //             home: const Login(),
-  //           ),
-  //         );
-  //       });
-  // }
 }
