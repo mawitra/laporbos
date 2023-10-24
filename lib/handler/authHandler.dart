@@ -40,7 +40,7 @@ class AuthHandler {
           Duration(seconds: expiresIn),
         );
         Navigator.of(context).pushReplacement(MaterialPageRoute(
-          builder: (context) => Bottom(),
+          builder: (context) => HomeHadirBos(),
         ));
       } else {
         ScaffoldMessenger.of(context).showSnackBar(

@@ -1,11 +1,9 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_field, library_private_types_in_public_api, dead_code
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_field, library_private_types_in_public_api, dead_code, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/screens/auth/login.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/customer/customer.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/laporan/daftar_laporan.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
 
 class HomeSuperAdmin extends StatefulWidget {
@@ -570,10 +568,10 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
           onTap: (index) {
             if (index == 1) {
               // Check if "Pelanggan" icon is clicked
-              Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) =>
-                    ListCustomer(), // Navigate to the login screen
-              ));
+              // Navigator.of(context).push(MaterialPageRoute(
+              //   builder: (context) =>
+              //       ListCustomer(), // Navigate to the login screen
+              // ));
             }
             setState(() {
               _currentIndex = index;
@@ -606,9 +604,9 @@ class _HomeSuperAdminState extends State<HomeSuperAdmin> {
             ListTile(
               title: Text('Customers'),
               onTap: () {
-                Navigator.of(context).push(MaterialPageRoute(
-                  builder: (context) => ListCustomer(),
-                ));
+                // Navigator.of(context).push(MaterialPageRoute(
+                //   builder: (context) => ListCustomer(),
+                // ));
               },
             ),
             ListTile(

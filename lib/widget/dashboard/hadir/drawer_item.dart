@@ -5,12 +5,12 @@ class DrawerItem extends StatefulWidget {
     Key? key,
     required this.name,
     required this.icon,
-    required this.onTap, // Rename 'onPressed' to 'onTap'
+    required this.onTap,
   }) : super(key: key);
 
   final String name;
   final IconData icon;
-  final Function() onTap; // Rename 'onPressed' to 'onTap'
+  final Function() onTap;
 
   @override
   _DrawerItemState createState() => _DrawerItemState();

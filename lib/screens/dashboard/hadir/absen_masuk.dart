@@ -1,28 +1,45 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, prefer_final_fields, unused_field, non_constant_identifier_names, unused_local_variable
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
+import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
+import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
+import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
+import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
+import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
 
-class Bottom extends StatefulWidget {
-  const Bottom({Key? key}) : super(key: key);
+class AbsenMasuk extends StatefulWidget {
+  const AbsenMasuk({super.key});
 
   @override
-  State<Bottom> createState() => _BottomState();
+  State<AbsenMasuk> createState() => _AbsenMasukState();
 }
 
-class _BottomState extends State<Bottom> {
-  int index_color = 0;
-  List Screen = [
-    HomeHadirBos(),
-    DaftarPetugas(),
-  ];
+class _AbsenMasukState extends State<AbsenMasuk> {
+  int index_color = 2;
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      // backgroundColor: Colors.deepOrange.shade100,
-      body: Screen[index_color],
+      backgroundColor: Colors.deepOrange.shade50,
+      appBar: AppBar(
+        leading: Builder(
+          builder: (BuildContext context) {
+            return IconButton(
+              icon: Icon(Icons.menu, color: Colors.black),
+              onPressed: () {
+                Scaffold.of(context)
+                    .openDrawer(); // Buka drawer saat tombol menu diklik
+              },
+            );
+          },
+        ),
+        backgroundColor: AppColor.primaryColor,
+        elevation: 0,
+      ),
+      drawer: CustomDrawer(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,
@@ -36,6 +53,11 @@ class _BottomState extends State<Bottom> {
                 onTap: () {
                   setState(() {
                     index_color = 0;
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => HomeHadirBos(),
+                      ),
+                    );
                   });
                 },
                 child: Column(
@@ -64,6 +86,11 @@ class _BottomState extends State<Bottom> {
                 onTap: () {
                   setState(() {
                     index_color = 1;
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => DaftarAbsen(),
+                      ),
+                    );
                   });
                 },
                 child: Column(
@@ -92,6 +119,11 @@ class _BottomState extends State<Bottom> {
                 onTap: () {
                   setState(() {
                     index_color = 2;
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => AbsenMasuk(),
+                      ),
+                    );
                   });
                 },
                 child: Column(
@@ -120,6 +152,11 @@ class _BottomState extends State<Bottom> {
                 onTap: () {
                   setState(() {
                     index_color = 3;
+                    Navigator.of(context).pushReplacement(
+                      MaterialPageRoute(
+                        builder: (context) => AbsenPulang(),
+                      ),
+                    );
                   });
                 },
                 child: Column(

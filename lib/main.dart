@@ -12,6 +12,8 @@ void main() {
   runApp(const MyApp());
 }
 
+int index_color = 0;
+
 class MyApp extends StatelessWidget {
   const MyApp({super.key});
 
@@ -22,7 +24,7 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Bottom(),
+          home: Login(),
         );
       },
     );

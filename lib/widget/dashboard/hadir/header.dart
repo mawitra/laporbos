@@ -17,7 +17,7 @@ class Header extends StatelessWidget {
           children: [
             Container(
               width: double.infinity,
-              height: 150,
+              height: 135.h,
               decoration: BoxDecoration(
                 color: AppColor.primaryColor,
                 borderRadius: BorderRadius.only(
@@ -37,7 +37,7 @@ class Header extends StatelessWidget {
                           style: TextStyle(
                             fontWeight: FontWeight.w500,
                             fontSize: 17,
-                            color: Color.fromARGB(255, 224, 223, 223),
+                            color: Color.fromARGB(255, 255, 255, 255),
                           ),
                         ),
                         Text(
@@ -51,35 +51,16 @@ class Header extends StatelessWidget {
                       ],
                     ),
                   ),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.end,
-                    children: [
-                      IconButton(
-                        icon: Icon(
-                          Icons
-                              .logout, // You can replace this with your logout icon
-                          color: Colors.white,
-                          size: 30,
-                        ),
-                        onPressed: () {
-                          Navigator.of(context)
-                              .pushReplacement(MaterialPageRoute(
-                            builder: (context) => Login(),
-                          ));
-                        },
-                      ),
-                    ],
-                  ),
                 ],
               ),
             ),
           ],
         ),
         Positioned(
-          top: 80,
+          top: 60,
           left: 37,
           child: Container(
-            height: 130.h,
+            height: 120.h,
             width: 295.w,
             decoration: BoxDecoration(
               boxShadow: [

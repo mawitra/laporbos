@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_import
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
@@ -31,14 +31,6 @@ class SpecialOffers extends StatelessWidget {
                       color: Colors.black,
                     ),
                   ),
-                  // Text(
-                  //   'View all',
-                  //   style: TextStyle(
-                  //     fontWeight: FontWeight.w600,
-                  //     fontSize: 20,
-                  //     color: Colors.black,
-                  //   ),
-                  // ),
                 ],
               ),
             ],
@@ -50,21 +42,18 @@ class SpecialOffers extends StatelessWidget {
           child: Row(
             children: [
               SpecialOfferCard(
-                category: "Smwqeweartphonedasd",
-                logoImage: "assets/images/hadibos.png",
-                numOfBrands: 18,
+                category: "Smwqewe",
+                logoIcon: Icons.home,
                 press: () {},
               ),
               SpecialOfferCard(
-                category: "Fasfgdgdfghion",
-                numOfBrands: 24,
-                logoImage: "assets/images/hadibos.png",
+                category: "qqwrty",
+                logoIcon: Icons.home,
                 press: () {},
               ),
               SpecialOfferCard(
-                category: "Fashdasdasdion",
-                logoImage: "assets/images/hadibos.png",
-                numOfBrands: 24,
+                category: "absen pulang",
+                logoIcon: Icons.home,
                 press: () {},
               ),
               SizedBox(width: 20),
@@ -80,14 +69,13 @@ class SpecialOfferCard extends StatelessWidget {
   const SpecialOfferCard({
     Key? key,
     required this.category,
-    required this.numOfBrands,
     required this.press,
-    required this.logoImage,
+    this.logoIcon, // Tambahkan logoIcon sebagai parameter opsional
   }) : super(key: key);
 
   final String category;
-  final int numOfBrands;
-  final String logoImage;
+
+  final IconData? logoIcon; // Jadikan logoIcon opsional
   final GestureTapCallback press;
 
   @override
@@ -97,43 +85,44 @@ class SpecialOfferCard extends StatelessWidget {
       child: GestureDetector(
         onTap: press,
         child: SizedBox(
-          width: 200,
+          width: 150,
           height: 100,
           child: ClipRRect(
             borderRadius: BorderRadius.circular(20),
             child: Stack(
               children: [
                 Container(
-                  decoration: BoxDecoration(
-                      // gradient: LinearGradient(
-                      //   begin: Alignment.topCenter,
-                      //   end: Alignment.bottomCenter,
-                      //   colors: [
-                      //     Color(0xFF343434).withOpacity(0.8),
-                      //     Color(0xFF343434).withOpacity(0.20),
-                      //   ],
-                      // ),
-                      color: Colors.brown.shade300),
+                  decoration: BoxDecoration(color: Colors.brown.shade300),
                 ),
                 Padding(
                   padding: EdgeInsets.symmetric(
-                    horizontal: 15.0,
+                    horizontal: 50,
                     vertical: 10,
                   ),
-                  child: Text.rich(
-                    TextSpan(
-                      style: TextStyle(color: Colors.white),
-                      children: [
-                        TextSpan(
-                          text: "$category\n",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                          ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      if (logoIcon !=
+                          null) // Tampilkan ikon jika logoIcon tidak null
+                        Icon(
+                          logoIcon,
+                          color: Colors.white,
+                          size: 50, // Sesuaikan ukuran ikon sesuai kebutuhan
                         ),
-                        TextSpan(text: "$numOfBrands qwerty")
-                      ],
-                    ),
+                      Text.rich(
+                        TextSpan(
+                          style: TextStyle(color: Colors.white),
+                          children: [
+                            TextSpan(
+                              text: "$category\n",
+                              style: TextStyle(
+                                fontSize: 5,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ],
                   ),
                 ),
               ],
