@@ -2,27 +2,49 @@
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
+import 'package:laporbos/screens/dashboard/hadir/absen_masuk.dart';
+import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
 
 class Bottom extends StatefulWidget {
-  const Bottom({Key? key}) : super(key: key);
+  final int initialIndex;
+  final Function(int) onIndexChanged; // Tambahkan properti callback
+
+  const Bottom(
+      {Key? key,
+      required this.initialIndex,
+      required this.onIndexChanged,
+      String? authToken,
+      DateTime? tokenExpirationTime})
+      : super(key: key);
 
   @override
-  State<Bottom> createState() => _BottomState();
+  State<Bottom> createState() => _BottomState(initialIndex);
 }
 
 class _BottomState extends State<Bottom> {
-  int index_color = 0;
-  List Screen = [
+  int index_color;
+
+  _BottomState(this.index_color);
+
+  void onIndexChanged(int newIndex) {
+    setState(() {
+      index_color = newIndex;
+    });
+  }
+
+  List<Widget> screenList = [
     HomeHadirBos(),
-    DaftarPetugas(),
+    DaftarAbsen(),
+    AbsenMasuk(),
+    AbsenPulang(),
   ];
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       // backgroundColor: Colors.deepOrange.shade100,
-      body: Screen[index_color],
+      body: screenList[index_color],
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       bottomNavigationBar: BottomAppBar(
         color: Colors.white,

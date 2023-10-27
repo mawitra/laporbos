@@ -24,7 +24,12 @@ class MyApp extends StatelessWidget {
       builder: (context, child) {
         return MaterialApp(
           debugShowCheckedModeBanner: false,
-          home: Login(),
+          home: Bottom(
+            initialIndex: 0,
+            onIndexChanged: (int newIndex) {
+              // Tambahkan logika yang sesuai di sini
+            },
+          ),
         );
       },
     );

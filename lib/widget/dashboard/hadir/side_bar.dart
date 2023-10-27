@@ -2,18 +2,24 @@
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
+import 'package:laporbos/model/user.dart';
 import 'package:laporbos/screens/auth/login.dart';
 import 'package:laporbos/screens/dashboard/hadir/absen_masuk.dart';
 import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
 import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
+import 'package:laporbos/service/userService.dart';
+import 'package:laporbos/utils/storage.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
 // import 'package:laporbos/widget/dashboard/hadir/people.dart';
 
 class CustomDrawer extends StatefulWidget {
-  const CustomDrawer({Key? key}) : super(key: key);
+  final Function(int) onIndexSelected;
+
+  const CustomDrawer({Key? key, required this.onIndexSelected})
+      : super(key: key);
 
   @override
   _CustomDrawerState createState() => _CustomDrawerState();
@@ -21,6 +27,26 @@ class CustomDrawer extends StatefulWidget {
 
 class _CustomDrawerState extends State<CustomDrawer> {
   int index_color = 0;
+  UserModel? user;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadUserData();
+  }
+
+  _loadUserData() async {
+    final String? authToken = await StorageUtil.getToken();
+    if (authToken != null) {
+      final UserModel? userData = await UserService.fetchUserData(authToken);
+
+      if (userData != null) {
+        setState(() {
+          user = userData;
+        });
+      }
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,23 +58,25 @@ class _CustomDrawerState extends State<CustomDrawer> {
           child: Column(
             children: [
               headerWidget(),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               const Divider(
                 thickness: 1,
                 height: 10,
                 color: Colors.black,
               ),
-              const SizedBox(height: 40),
+              const SizedBox(height: 30),
               DrawerItem(
                 name: 'Home',
                 icon: Icons.home,
                 onTap: () {
-                  setState(() {
-                    index_color = 0;
-                  });
-
+                  widget.onIndexSelected(0);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => HomeHadirBos(),
+                    builder: (context) => Bottom(
+                      initialIndex: 0,
+                      onIndexChanged: (int newIndex) {
+                        // Tambahkan logika yang sesuai di sini
+                      },
+                    ),
                   ));
                 },
               ),
@@ -57,12 +85,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 name: 'Daftar Absensi',
                 icon: Icons.assignment_outlined,
                 onTap: () {
-                  setState(() {
-                    index_color = 1;
-                  });
-
+                  widget.onIndexSelected(1);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => DaftarAbsen(),
+                    builder: (context) => Bottom(
+                      initialIndex: 1,
+                      onIndexChanged: (int newIndex) {
+                        // Tambahkan logika yang sesuai di sini
+                      },
+                    ),
                   ));
                 },
               ),
@@ -71,8 +101,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 name: 'Absen Masuk',
                 icon: Icons.message_outlined,
                 onTap: () {
+                  widget.onIndexSelected(2);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => AbsenMasuk(),
+                    builder: (context) => Bottom(
+                      initialIndex: 2,
+                      onIndexChanged: (int newIndex) {
+                        // Tambahkan logika yang sesuai di sini
+                      },
+                    ),
                   ));
                 },
               ),
@@ -81,8 +117,14 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 name: 'Absen Keluar',
                 icon: Icons.favorite_outline,
                 onTap: () {
+                  widget.onIndexSelected(3);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
-                    builder: (context) => AbsenPulang(),
+                    builder: (context) => Bottom(
+                      initialIndex: 3,
+                      onIndexChanged: (int newIndex) {
+                        // Tambahkan logika yang sesuai di sini
+                      },
+                    ),
                   ));
                 },
               ),
@@ -116,25 +158,25 @@ Widget headerWidget() {
   return Row(
     // ignore: prefer_const_literals_to_create_immutables
     children: [
-      ClipOval(
-        child: Image.asset(
-          'assets/images/a.jpeg',
-          width: 90,
-          height: 90,
-          fit: BoxFit.cover,
-        ),
-      ),
-      const SizedBox(
-        width: 20,
-      ),
+      // ClipOval(
+      //   child: Image.asset(
+      //     'assets/images/a.jpeg',
+      //     width: 90,
+      //     height: 90,
+      //     fit: BoxFit.cover,
+      //   ),
+      // ),
+      // const SizedBox(
+      //   width: 20,
+      // ),
       Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text('Mada Dwi Saputra',
-              style: TextStyle(fontSize: 15, color: Colors.black)),
-          SizedBox(
-            height: 5,
-          ),
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          if (user != null)
+            Text(user!.officerName,
+                style: TextStyle(fontSize: 15, color: Colors.black)),
+
+          SizedBox(height: 10), // Tambahkan ruang di antara teks
           Text('person@email.com',
               style: TextStyle(fontSize: 15, color: Colors.black))
         ],

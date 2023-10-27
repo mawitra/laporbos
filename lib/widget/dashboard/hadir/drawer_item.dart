@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 class DrawerItem extends StatefulWidget {
   const DrawerItem({
@@ -29,7 +30,7 @@ class _DrawerItemState extends State<DrawerItem> {
         widget.onTap(); // Change 'onPressed' to 'onTap'
       },
       child: SizedBox(
-        height: 40,
+        height: 40.h,
         child: Row(
           children: [
             Icon(

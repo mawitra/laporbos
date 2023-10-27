@@ -42,18 +42,21 @@ class SpecialOffers extends StatelessWidget {
           child: Row(
             children: [
               SpecialOfferCard(
-                category: "Smwqewe",
-                logoIcon: Icons.home,
+                // image: "assets/images/Image Banner 2.png",
+                category: "Absen Hari ini",
+
                 press: () {},
               ),
               SpecialOfferCard(
-                category: "qqwrty",
-                logoIcon: Icons.home,
+                // image: "assets/images/Image Banner 3.png",
+                category: "Telat",
+
                 press: () {},
               ),
               SpecialOfferCard(
-                category: "absen pulang",
-                logoIcon: Icons.home,
+                // image: "assets/images/Image Banner 3.png",
+                category: "Profil",
+
                 press: () {},
               ),
               SizedBox(width: 20),
@@ -70,18 +73,16 @@ class SpecialOfferCard extends StatelessWidget {
     Key? key,
     required this.category,
     required this.press,
-    this.logoIcon, // Tambahkan logoIcon sebagai parameter opsional
   }) : super(key: key);
 
   final String category;
 
-  final IconData? logoIcon; // Jadikan logoIcon opsional
   final GestureTapCallback press;
 
   @override
   Widget build(BuildContext context) {
     return Padding(
-      padding: EdgeInsets.only(left: 20),
+      padding: EdgeInsets.only(left: 15),
       child: GestureDetector(
         onTap: press,
         child: SizedBox(
@@ -92,37 +93,37 @@ class SpecialOfferCard extends StatelessWidget {
             child: Stack(
               children: [
                 Container(
-                  decoration: BoxDecoration(color: Colors.brown.shade300),
-                ),
-                Padding(
-                  padding: EdgeInsets.symmetric(
-                    horizontal: 50,
-                    vertical: 10,
+                  decoration: BoxDecoration(
+                    gradient: LinearGradient(
+                      begin: Alignment.topCenter,
+                      end: Alignment.bottomCenter,
+                      colors: [
+                        Color(0xFF343434).withOpacity(0.4),
+                        Color(0xFF343434).withOpacity(0.15),
+                      ],
+                    ),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      if (logoIcon !=
-                          null) // Tampilkan ikon jika logoIcon tidak null
-                        Icon(
-                          logoIcon,
-                          color: Colors.white,
-                          size: 50, // Sesuaikan ukuran ikon sesuai kebutuhan
-                        ),
-                      Text.rich(
-                        TextSpan(
-                          style: TextStyle(color: Colors.white),
-                          children: [
-                            TextSpan(
-                              text: "$category\n",
-                              style: TextStyle(
-                                fontSize: 5,
-                              ),
+                ),
+                Center(
+                  child: Padding(
+                    padding: EdgeInsets.symmetric(
+                      horizontal: 10.0,
+                      vertical: 35,
+                    ),
+                    child: Text.rich(
+                      TextSpan(
+                        style: TextStyle(color: Colors.white),
+                        children: [
+                          TextSpan(
+                            text: "$category\n",
+                            style: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
                             ),
-                          ],
-                        ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
                 ),
               ],
