@@ -9,6 +9,9 @@ import 'package:laporbos/screens/auth/login.dart';
 import 'package:laporbos/service/userService.dart';
 import 'package:laporbos/utils/greeting.dart';
 import 'package:laporbos/utils/storage.dart';
+import 'package:provider/provider.dart';
+
+import '../../../provider/userProvider.dart';
 
 class Header extends StatefulWidget {
   const Header({super.key});
@@ -33,15 +36,16 @@ class _HeaderState extends State<Header> {
       final UserModel? userData = await UserService.fetchUserData(authToken);
 
       if (userData != null) {
-        setState(() {
-          user = userData;
-        });
+        // Dapatkan UserProvider menggunakan konteks
+        final userProvider = context.read<UserProvider>();
+        userProvider.setUser(userData);
       }
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
     return Stack(
       children: [
         Column(
@@ -52,32 +56,31 @@ class _HeaderState extends State<Header> {
               decoration: BoxDecoration(
                 color: AppColor.primaryColor,
                 borderRadius: BorderRadius.only(
-                  bottomLeft: Radius.circular(20),
-                  bottomRight: Radius.circular(20),
-                ),
+                  bottomLeft: Radius.circular(30.r),
+                  bottomRight: Radius.circular(30.r),
+                ).r,
               ),
               child: Stack(
                 children: [
                   Padding(
-                    padding: const EdgeInsets.only(left: 52),
+                    padding: EdgeInsets.only(left: 35.w),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Text(
-                          greeting,
-                          style: TextStyle(
-                            fontWeight: FontWeight.w500,
-                            fontSize: 17,
-                            color: Color.fromARGB(255, 255, 255, 255),
-                          ),
-                        ),
-                        if (user != null)
+                        // Text(
+                        //   greeting,
+                        //   style: TextStyle(
+                        //     fontWeight: FontWeight.w500,
+                        //     fontSize: 17.sp,
+                        //     color: Color.fromARGB(255, 255, 255, 255),
+                        //   ),
+                        // ),
+                        if (userProvider.user != null)
                           Text(
-                            user!
-                                .officerName, // Access officerName from the user object
+                            'Hii, ${userProvider.user!.officerName}', // Access officerName from the user object
                             style: TextStyle(
-                              fontWeight: FontWeight.w600,
-                              fontSize: 20,
+                              fontWeight: FontWeight.w400,
+                              fontSize: 20.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -90,11 +93,11 @@ class _HeaderState extends State<Header> {
           ],
         ),
         Positioned(
-          top: 60,
-          left: 37,
+          top: 40.h,
+          left: 20.w,
           child: Container(
-            height: 120.h,
-            width: 295.w,
+            height: 135.h,
+            width: 320.w,
             decoration: BoxDecoration(
               boxShadow: [
                 BoxShadow(
@@ -102,10 +105,11 @@ class _HeaderState extends State<Header> {
                 ),
               ],
               color: Colors.brown.shade400,
-              borderRadius: BorderRadius.circular(15),
+              borderRadius: BorderRadius.circular(15).r,
             ),
             child: Container(
-              padding: EdgeInsets.only(left: 15, right: 15),
+              height: 200.h,
+              padding: EdgeInsets.only(left: 15, right: 15).w,
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -118,22 +122,32 @@ class _HeaderState extends State<Header> {
                         "Selamat Datang !",
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
-                          fontSize: 20,
+                          fontSize: 15.sp,
                           color: Colors.white,
                         ),
                       ),
                       SizedBox(height: 5.h),
                       Text(
-                        'Lorem ipsum dolor sit amet. ',
-                        style: TextStyle(fontSize: 10, color: Colors.white),
+                        'Lorem Ipsum has been the industrys',
+                        style: TextStyle(
+                            fontSize: 10.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
-                      SizedBox(height: 5.h),
+                      Text(
+                        'standard dummy ever since the 1500s, ',
+                        style: TextStyle(
+                            fontSize: 10.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
+                      ),
+                      SizedBox(height: 10.h),
                       Text(
                         DateFormat('EEEE, d MMMM y').format(DateTime.now()),
                         style: TextStyle(
-                          fontSize: 15,
-                          color: Colors.white,
-                        ),
+                            fontSize: 13.sp,
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold),
                       ),
                     ],
                   ),
@@ -144,7 +158,7 @@ class _HeaderState extends State<Header> {
                     // padding: EdgeInsets.only(left: ),
                     child: Image(
                       width: 90.w,
-                      height: 100.h,
+                      height: 90.h,
                       image: AssetImage('assets/images/hadirbos.png'),
                     ),
                   ),

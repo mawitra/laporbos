@@ -78,7 +78,11 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
         elevation: 0,
         title: Text(
           "Hadir BossQue",
-          style: TextStyle(color: Colors.white, fontSize: 25),
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+          ),
         ),
         centerTitle: true,
         actions: <Widget>[
@@ -112,7 +116,7 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
             ),
             SliverToBoxAdapter(
               child: Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20).w,
+                padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
@@ -123,7 +127,7 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                           'Absen Terakhir',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 20,
+                            fontSize: 15.sp,
                             color: Colors.black,
                           ),
                         ),
@@ -131,7 +135,7 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                           'Lihat semua',
                           style: TextStyle(
                             fontWeight: FontWeight.w600,
-                            fontSize: 15,
+                            fontSize: 15.sp,
                             color: Colors.black,
                           ),
                         ),
@@ -148,32 +152,34 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
               delegate: SliverChildBuilderDelegate(
                 (context, index) {
                   final attendance = attendanceList[index];
-                  return Card(
-                    color: Color.fromARGB(255, 255, 233, 226),
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(
-                          12.0), // Ubah nilai sesuai keinginan
-                    ),
-                    child: ListTile(
-                      leading: ClipOval(
-                        child: Image.asset('assets/images/b.jpeg',
-                            width: 50, height: 50),
+                  return Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 15.w),
+                    child: Card(
+                      color: Color.fromARGB(255, 255, 233, 226),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12.0.r),
                       ),
-                      title: Text(attendance.officerName),
-                      subtitle: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text('Tanggal: ${attendance.attdDate}'),
-                          Text('Status: ${attendance.status}'),
-                          Text('Absen Masuk Tepat Waktu.'),
-                        ],
+                      child: ListTile(
+                        leading: ClipOval(
+                          child: Image.asset('assets/images/b.jpeg',
+                              width: 50.w, height: 70.h),
+                        ),
+                        title: Text(attendance.officerName),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text('Tanggal: ${attendance.attdDate}'),
+                            Text('Status: ${attendance.status}'),
+                            Text('Absen Masuk Tepat Waktu.'),
+                          ],
+                        ),
                       ),
                     ),
                   );
                 },
                 childCount: attendanceList.length,
               ),
-            ),
+            )
           ],
         ),
       ),

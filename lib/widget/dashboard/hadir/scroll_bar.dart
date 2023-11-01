@@ -98,7 +98,7 @@ class SpecialOfferCard extends StatelessWidget {
                       begin: Alignment.topCenter,
                       end: Alignment.bottomCenter,
                       colors: [
-                        Color(0xFF343434).withOpacity(0.4),
+                        Color.fromARGB(255, 53, 36, 36).withOpacity(0.4),
                         Color(0xFF343434).withOpacity(0.15),
                       ],
                     ),
