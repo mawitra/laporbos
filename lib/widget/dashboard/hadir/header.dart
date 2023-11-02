@@ -77,10 +77,10 @@ class _HeaderState extends State<Header> {
                         // ),
                         if (userProvider.user != null)
                           Text(
-                            'Hii, ${userProvider.user!.officerName}', // Access officerName from the user object
+                            'Haii, ${userProvider.user!.officerName}', // Access officerName from the user object
                             style: TextStyle(
-                              fontWeight: FontWeight.w400,
-                              fontSize: 20.sp,
+                              fontWeight: FontWeight.w600,
+                              fontSize: 15.sp,
                               color: Colors.white,
                             ),
                           ),

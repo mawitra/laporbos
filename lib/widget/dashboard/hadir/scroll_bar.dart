@@ -1,13 +1,13 @@
 // ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_import
 
 import 'package:flutter/material.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/color.dart';
 
 class SpecialOffers extends StatelessWidget {
   const SpecialOffers({
     Key? key,
   }) : super(key: key);
-
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -41,96 +41,131 @@ class SpecialOffers extends StatelessWidget {
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
-              SpecialOfferCard(
-                // image: "assets/images/Image Banner 2.png",
-                category: "Absen Hari ini",
-
-                press: () {},
+              SizedBox(
+                width: 20,
               ),
-              SpecialOfferCard(
-                // image: "assets/images/Image Banner 3.png",
-                category: "Telat",
-
-                press: () {},
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    6.r,
+                  )),
+                  border: Border.all(
+                    color: Colors.brown.shade700,
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: AppColor.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              SpecialOfferCard(
-                // image: "assets/images/Image Banner 3.png",
-                category: "Profil",
-
-                press: () {},
+              SizedBox(
+                width: 20,
               ),
-              SizedBox(width: 20),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    6.r,
+                  )),
+                  border: Border.all(
+                    color: Color(0xffDDDDDD),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: AppColor.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    6.r,
+                  )),
+                  border: Border.all(
+                    color: Color(0xffDDDDDD),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: AppColor.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 20.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    6.r,
+                  )),
+                  border: Border.all(
+                    color: Color(0xffDDDDDD),
+                    width: 1.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: AppColor.primaryColor,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
             ],
           ),
         ),
+        // Tambahkan Container di dalam Column
       ],
-    );
-  }
-}
-
-class SpecialOfferCard extends StatelessWidget {
-  const SpecialOfferCard({
-    Key? key,
-    required this.category,
-    required this.press,
-  }) : super(key: key);
-
-  final String category;
-
-  final GestureTapCallback press;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(left: 15),
-      child: GestureDetector(
-        onTap: press,
-        child: SizedBox(
-          width: 150,
-          height: 100,
-          child: ClipRRect(
-            borderRadius: BorderRadius.circular(20),
-            child: Stack(
-              children: [
-                Container(
-                  decoration: BoxDecoration(
-                    gradient: LinearGradient(
-                      begin: Alignment.topCenter,
-                      end: Alignment.bottomCenter,
-                      colors: [
-                        Color.fromARGB(255, 53, 36, 36).withOpacity(0.4),
-                        Color(0xFF343434).withOpacity(0.15),
-                      ],
-                    ),
-                  ),
-                ),
-                Center(
-                  child: Padding(
-                    padding: EdgeInsets.symmetric(
-                      horizontal: 10.0,
-                      vertical: 35,
-                    ),
-                    child: Text.rich(
-                      TextSpan(
-                        style: TextStyle(color: Colors.white),
-                        children: [
-                          TextSpan(
-                            text: "$category\n",
-                            style: TextStyle(
-                              fontSize: 18,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ),
-        ),
-      ),
     );
   }
 }

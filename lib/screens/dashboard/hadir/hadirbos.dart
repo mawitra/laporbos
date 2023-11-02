@@ -34,11 +34,20 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
   AttendanceModel? attendance;
   UserModel? user;
   List<AttendanceModel> attendanceList = [];
+  bool isLoading = true;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     fetchAttendanceData();
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false; // Set the flag to false in dispose
+    super.dispose();
   }
 
   Future<void> fetchAttendanceData() async {
@@ -53,9 +62,12 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
 
         print(allAttendanceData);
 
-        setState(() {
-          attendanceList = allAttendanceData;
-        });
+        if (_isMounted) {
+          setState(() {
+            attendanceList = allAttendanceData;
+            isLoading = false;
+          });
+        }
       }
     }
   }
@@ -148,38 +160,65 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
             SliverToBoxAdapter(
               child: SizedBox(height: 10.h),
             ),
-            SliverList(
-              delegate: SliverChildBuilderDelegate(
-                (context, index) {
-                  final attendance = attendanceList[index];
-                  return Padding(
-                    padding: EdgeInsets.symmetric(horizontal: 15.w),
-                    child: Card(
-                      color: Color.fromARGB(255, 255, 233, 226),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12.0.r),
-                      ),
-                      child: ListTile(
-                        leading: ClipOval(
-                          child: Image.asset('assets/images/b.jpeg',
-                              width: 50.w, height: 70.h),
-                        ),
-                        title: Text(attendance.officerName),
-                        subtitle: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Text('Tanggal: ${attendance.attdDate}'),
-                            Text('Status: ${attendance.status}'),
-                            Text('Absen Masuk Tepat Waktu.'),
-                          ],
-                        ),
+            isLoading
+                ? SliverFillRemaining(
+                    child: Center(
+                      child: CircularProgressIndicator(
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                            Colors.orange), // Ganti warna sesuai keinginan Anda
                       ),
                     ),
-                  );
-                },
-                childCount: attendanceList.length,
-              ),
-            )
+                  )
+                : SliverList(
+                    delegate: SliverChildBuilderDelegate(
+                      (context, index) {
+                        if (attendanceList.isEmpty) {
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 80.w),
+                            child: Center(
+                              child: ListTile(
+                                title: Text(
+                                  'Belum ada absen hari ini',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    color: Colors.black,
+                                  ),
+                                ),
+                              ),
+                            ),
+                          );
+                        } else {
+                          final attendance = attendanceList[index];
+                          return Padding(
+                            padding: EdgeInsets.symmetric(horizontal: 15.w),
+                            child: Card(
+                              color: Color.fromARGB(255, 255, 233, 226),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12.0.r),
+                              ),
+                              child: ListTile(
+                                leading: ClipOval(
+                                  child: Image.asset('assets/images/b.jpeg',
+                                      width: 50.w, height: 70.h),
+                                ),
+                                title: Text(attendance.officerName),
+                                subtitle: Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    Text('Tanggal: ${attendance.attdDate}'),
+                                    Text('Status: ${attendance.status}'),
+                                    Text('Absen Masuk Tepat Waktu.'),
+                                  ],
+                                ),
+                              ),
+                            ),
+                          );
+                        }
+                      },
+                      childCount:
+                          attendanceList.isEmpty ? 1 : attendanceList.length,
+                    ),
+                  )
           ],
         ),
       ),
