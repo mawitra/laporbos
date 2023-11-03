@@ -3,6 +3,8 @@
 import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
 import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
@@ -12,7 +14,6 @@ import 'package:laporbos/utils/scanner.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
 import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
-
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 
 class AbsenMasuk extends StatefulWidget {
@@ -25,8 +26,12 @@ class AbsenMasuk extends StatefulWidget {
 class _AbsenMasukState extends State<AbsenMasuk> {
   int index_color = 2;
   String _result = '';
-
+  late GoogleMapController _controller;
+  Position? _position;
   bool loading = false;
+
+  LatLng _initialCameraPosition = LatLng(0, 0);
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -46,14 +51,71 @@ class _AbsenMasukState extends State<AbsenMasuk> {
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
       ),
-      body: Center(
-        child: Text(
-          _result.isNotEmpty
-              ? _result
-              : 'Data', // Check if _result is not empty
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            fontSize: 20,
+      // body: Center(
+      //   child: Text(
+      //     _result.isNotEmpty
+      //         ? _result
+      //         : 'Data', // Check if _result is not empty
+      //     style: TextStyle(
+      //       fontWeight: FontWeight.bold,
+      //       fontSize: 20,
+      //     ),
+      //   ),
+      // ),
+
+      body: SafeArea(
+        child: Container(
+          child: Column(
+            children: [
+              SizedBox(
+                height: 40,
+              ),
+              Container(
+                height: 300,
+                margin: EdgeInsets.symmetric(horizontal: 20),
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.circular(10),
+                  border: Border.all(
+                    color: Colors.orange,
+                    width: 2.0,
+                  ),
+                ),
+                child: Row(
+                  children: [
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment
+                          .start, // Teks akan dimulai dari kiri
+                      mainAxisAlignment: MainAxisAlignment
+                          .center, // Teks di tengah secara vertikal
+                      children: [
+                        // GoogleMap(
+                        //   onMapCreated: (controller) {
+                        //     _controller = controller;
+                        //   },
+                        //   initialCameraPosition: CameraPosition(
+                        //     target: _initialCameraPosition,
+                        //     zoom: 15.0,
+                        //   ),
+                        // ),
+                        Text(
+                          _result.isNotEmpty
+                              ? _result
+                              : 'Data', // Check if _result is not empty
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 20,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                height: 10,
+              ),
+            ],
           ),
         ),
       ),

@@ -245,7 +245,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          'Data Keseluruhan Kehadiran ',
+                          'Sakit | Izin | Alpa',
                           style: TextStyle(fontSize: 14),
                         ),
                       ],

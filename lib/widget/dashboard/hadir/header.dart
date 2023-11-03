@@ -36,7 +36,6 @@ class _HeaderState extends State<Header> {
       final UserModel? userData = await UserService.fetchUserData(authToken);
 
       if (userData != null) {
-        // Dapatkan UserProvider menggunakan konteks
         final userProvider = context.read<UserProvider>();
         userProvider.setUser(userData);
       }
@@ -109,7 +108,7 @@ class _HeaderState extends State<Header> {
             ),
             child: Container(
               height: 200.h,
-              padding: EdgeInsets.only(left: 15, right: 15).w,
+              padding: EdgeInsets.only(left: 15.w, right: 15.w),
               child: Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
