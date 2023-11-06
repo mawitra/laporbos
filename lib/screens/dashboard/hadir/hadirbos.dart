@@ -6,7 +6,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 
 import 'package:laporbos/color.dart';
-import 'package:laporbos/handler/attendanceHandler.dart';
 import 'package:laporbos/model/attendance.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/screens/auth/login.dart';

@@ -15,7 +15,7 @@ import 'package:laporbos/utils/storage.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
 import 'package:provider/provider.dart';
-import '../../../provider/userProvider.dart';
+import '../../../provider/provider.dart';
 
 class CustomDrawer extends StatefulWidget {
   final Function(int) onIndexSelected;

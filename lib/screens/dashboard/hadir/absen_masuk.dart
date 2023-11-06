@@ -89,15 +89,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                       mainAxisAlignment: MainAxisAlignment
                           .center, // Teks di tengah secara vertikal
                       children: [
-                        // GoogleMap(
-                        //   onMapCreated: (controller) {
-                        //     _controller = controller;
-                        //   },
-                        //   initialCameraPosition: CameraPosition(
-                        //     target: _initialCameraPosition,
-                        //     zoom: 15.0,
-                        //   ),
-                        // ),
                         Text(
                           _result.isNotEmpty
                               ? _result

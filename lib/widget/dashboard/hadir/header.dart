@@ -11,7 +11,7 @@ import 'package:laporbos/utils/greeting.dart';
 import 'package:laporbos/utils/storage.dart';
 import 'package:provider/provider.dart';
 
-import '../../../provider/userProvider.dart';
+import '../../../provider/provider.dart';
 
 class Header extends StatefulWidget {
   const Header({super.key});
@@ -156,8 +156,8 @@ class _HeaderState extends State<Header> {
                   Container(
                     // padding: EdgeInsets.only(left: ),
                     child: Image(
-                      width: 90.w,
-                      height: 90.h,
+                      width: 100.w,
+                      height: 100.h,
                       image: AssetImage('assets/images/hadirbos.png'),
                     ),
                   ),
