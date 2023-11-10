@@ -1,3 +1,5 @@
+// ignore_for_file: unused_import
+
 import 'package:laporbos/model/user.dart';
 
 class AttendanceModel {

@@ -18,7 +18,7 @@ class AuthHandler {
     final authService = AuthService();
     final response = await authService.login(username, password);
     if (response != null) {
-      final loginResponse = LoginResponseModel.fromJson(response);
+      final loginResponse = LoginModel.fromJson(response);
       final token = loginResponse.accessToken;
       final expiresIn = loginResponse.expiresIn;
       await saveTokenToSharedPreferences(token!);

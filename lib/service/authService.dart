@@ -5,8 +5,8 @@ import 'package:http/http.dart' as http;
 
 class AuthService {
   Future<Map<String, dynamic>?> login(String username, String password) async {
-    final url = Uri.parse('http://192.168.48.180:8000/api/login');
-    print(url);
+    final url = Uri.parse('http://192.168.18.158:8000/api/login');
+
     try {
       final response = await http.post(
         url,

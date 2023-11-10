@@ -13,12 +13,12 @@ class SpecialOffers extends StatelessWidget {
     return Column(
       children: [
         Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 20),
+          padding: EdgeInsets.symmetric(horizontal: 20),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: [
               SizedBox(
-                height: 10,
+                height: 10.h,
               ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -27,7 +27,7 @@ class SpecialOffers extends StatelessWidget {
                     'Laporan',
                     style: TextStyle(
                       fontWeight: FontWeight.w600,
-                      fontSize: 20,
+                      fontSize: 20.sp,
                       color: Colors.black,
                     ),
                   ),
@@ -36,11 +36,179 @@ class SpecialOffers extends StatelessWidget {
             ],
           ),
         ),
-        SizedBox(height: 10),
+        SizedBox(height: 10.h),
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
             children: [
+              SizedBox(
+                width: 20.w,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    10.r,
+                  )),
+                  border: Border.all(
+                    color: AppColor.primaryColor,
+                    width: 1.0.w,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Image.asset(
+                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
+                      width: 50.w, // Atur lebar sesuai kebutuhan
+                      height: 50.h, // Atur tinggi sesuai kebutuhan
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: Colors.brown.shade400,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20.w,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    10.r,
+                  )),
+                  border: Border.all(
+                    color: AppColor.primaryColor,
+                    width: 1.0.w,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Image.asset(
+                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
+                      width: 50.w, // Atur lebar sesuai kebutuhan
+                      height: 50.h, // Atur tinggi sesuai kebutuhan
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Text(
+                      "Absen Terlambat",
+                      style: TextStyle(
+                        color: Colors.brown.shade400,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20.w,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    10.r,
+                  )),
+                  border: Border.all(
+                    color: AppColor.primaryColor,
+                    width: 1.0.w,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Image.asset(
+                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
+                      width: 50.w, // Atur lebar sesuai kebutuhan
+                      height: 50.h, // Atur tinggi sesuai kebutuhan
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Text(
+                      "Ketidakhadiran",
+                      style: TextStyle(
+                        color: Colors.brown.shade400,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              SizedBox(
+                width: 20.w,
+              ),
+              Container(
+                padding: EdgeInsets.symmetric(
+                  horizontal: 10.w,
+                ),
+                height: 100.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.all(Radius.circular(
+                    10.r,
+                  )),
+                  border: Border.all(
+                    color: AppColor.primaryColor,
+                    width: 1.0.w,
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Image.asset(
+                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
+                      width: 50.w, // Atur lebar sesuai kebutuhan
+                      height: 50.h, // Atur tinggi sesuai kebutuhan
+                    ),
+                    SizedBox(
+                      height: 10.h,
+                    ),
+                    Text(
+                      "Absen Hari ini",
+                      style: TextStyle(
+                        color: Colors.brown.shade400,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 15.sp,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
               SizedBox(
                 width: 20.w,
               ),
@@ -126,175 +294,7 @@ class SpecialOffers extends StatelessWidget {
                 ),
               ),
               SizedBox(
-                width: 20,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10.w,
-                ),
-                height: 100.h,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.all(Radius.circular(
-                    10.r,
-                  )),
-                  border: Border.all(
-                    color: AppColor.primaryColor,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
-                      width: 50.w, // Atur lebar sesuai kebutuhan
-                      height: 50.h, // Atur tinggi sesuai kebutuhan
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Text(
-                      "Absen Hari ini",
-                      style: TextStyle(
-                        color: Colors.brown.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10.w,
-                ),
-                height: 100.h,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.all(Radius.circular(
-                    10.r,
-                  )),
-                  border: Border.all(
-                    color: AppColor.primaryColor,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
-                      width: 50.w, // Atur lebar sesuai kebutuhan
-                      height: 50.h, // Atur tinggi sesuai kebutuhan
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Text(
-                      "Absen Hari ini",
-                      style: TextStyle(
-                        color: Colors.brown.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10.w,
-                ),
-                height: 100.h,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.all(Radius.circular(
-                    10.r,
-                  )),
-                  border: Border.all(
-                    color: AppColor.primaryColor,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
-                      width: 50.w, // Atur lebar sesuai kebutuhan
-                      height: 50.h, // Atur tinggi sesuai kebutuhan
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Text(
-                      "Absen Hari ini",
-                      style: TextStyle(
-                        color: Colors.brown.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 20,
-              ),
-              Container(
-                padding: EdgeInsets.symmetric(
-                  horizontal: 10.w,
-                ),
-                height: 100.h,
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.all(Radius.circular(
-                    10.r,
-                  )),
-                  border: Border.all(
-                    color: AppColor.primaryColor,
-                    width: 1.0,
-                  ),
-                ),
-                child: Column(
-                  children: [
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar yang sesuai
-                      width: 50.w, // Atur lebar sesuai kebutuhan
-                      height: 50.h, // Atur tinggi sesuai kebutuhan
-                    ),
-                    SizedBox(
-                      height: 10.h,
-                    ),
-                    Text(
-                      "Absen Hari ini",
-                      style: TextStyle(
-                        color: Colors.brown.shade400,
-                        fontWeight: FontWeight.bold,
-                        fontSize: 15.sp,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                width: 20,
+                width: 20.w,
               ),
             ],
           ),

@@ -1,11 +1,11 @@
-class LoginResponseModel {
+class LoginModel {
   final String? accessToken;
   final int? expiresIn;
 
-  LoginResponseModel({this.accessToken, this.expiresIn});
+  LoginModel({this.accessToken, this.expiresIn});
 
-  factory LoginResponseModel.fromJson(Map<String, dynamic> json) {
-    return LoginResponseModel(
+  factory LoginModel.fromJson(Map<String, dynamic> json) {
+    return LoginModel(
       accessToken: json['access_token'],
       expiresIn: json['expires_in'],
     );

@@ -1,8 +1,11 @@
-// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import
+// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import, unnecessary_null_comparison
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
+import 'package:laporbos/handler/attendanceQrHandler.dart';
+import 'package:laporbos/service/attendanceQrService.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import 'package:http/http.dart' as http;
 
 class UtilScanner extends StatefulWidget {
   const UtilScanner({super.key});
@@ -16,6 +19,16 @@ class _ScannerState extends State<UtilScanner> {
   bool _frontCam = false;
   GlobalKey _qrKey = GlobalKey();
   late QRViewController _controller;
+  final TextEditingController cust_id = TextEditingController();
+  final TextEditingController locQR = TextEditingController();
+
+  void attendanceQrHandler() {
+    AttendanceQrHandler(context).atttendanceQr(
+      cust_id.text,
+      locQR.text,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -38,22 +51,19 @@ class _ScannerState extends State<UtilScanner> {
       body: Stack(
         children: <Widget>[
           QRView(
-              key: _qrKey,
-              overlay: QrScannerOverlayShape(borderColor: Colors.white),
-              onQRViewCreated: (QRViewController controller) {
-                this._controller = controller;
-                controller.scannedDataStream.listen((val) {
-                  if (mounted) {
-                    _controller.dispose();
-                    Navigator.pop(context, val);
-                  }
-                });
-              }),
-          Align(
-            alignment: Alignment.center,
-            child: Container(
-              margin: EdgeInsets.only(top: 60),
-            ),
+            key: _qrKey,
+            overlay: QrScannerOverlayShape(borderColor: Colors.white),
+            onQRViewCreated: (QRViewController controller) {
+              this._controller = controller;
+              controller.scannedDataStream.listen((barcode) {
+                if (mounted) {
+                  _controller.dispose();
+                  Navigator.pop(context, barcode);
+                  // Perform validation on the scanned QR code content
+                  attendanceQrHandler(); // Invoke the method here
+                }
+              });
+            },
           ),
           Align(
             alignment: Alignment.bottomCenter,
@@ -78,8 +88,9 @@ class _ScannerState extends State<UtilScanner> {
                     });
                     _controller.flipCamera();
                   },
-                  icon:
-                      Icon(_frontCam ? Icons.camera_front : Icons.camera_rear),
+                  icon: Icon(
+                    _frontCam ? Icons.camera_front : Icons.camera_rear,
+                  ),
                 ),
                 IconButton(
                   color: Colors.white,

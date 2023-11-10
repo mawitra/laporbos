@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:intl/date_symbol_data_local.dart';
 import 'package:laporbos/screens/auth/login.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/screens/auth/register.dart';
@@ -13,7 +14,8 @@ import 'package:provider/provider.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 
-void main() {
+void main() async {
+  await initializeDateFormatting('id_ID', null);
   runApp(
     ChangeNotifierProvider(
       create: (context) => UserProvider(),

@@ -23,11 +23,19 @@ class Header extends StatefulWidget {
 class _HeaderState extends State<Header> {
   late String greeting = GreetingUtil.getGreetingMessage();
   UserModel? user;
+  bool _isMounted = false;
 
   @override
   void initState() {
     super.initState();
+    _isMounted = true;
     _loadUserData();
+  }
+
+  @override
+  void dispose() {
+    _isMounted = false;
+    super.dispose();
   }
 
   _loadUserData() async {
@@ -35,7 +43,8 @@ class _HeaderState extends State<Header> {
     if (authToken != null) {
       final UserModel? userData = await UserService.fetchUserData(authToken);
 
-      if (userData != null) {
+      if (_isMounted) {
+        // Check if the widget is still mounted
         final userProvider = context.read<UserProvider>();
         userProvider.setUser(userData);
       }
@@ -51,7 +60,7 @@ class _HeaderState extends State<Header> {
           children: [
             Container(
               width: double.infinity,
-              height: 135.h,
+              height: 120.h,
               decoration: BoxDecoration(
                 color: AppColor.primaryColor,
                 borderRadius: BorderRadius.only(
@@ -92,7 +101,7 @@ class _HeaderState extends State<Header> {
           ],
         ),
         Positioned(
-          top: 40.h,
+          top: 30.h,
           left: 20.w,
           child: Container(
             height: 135.h,
@@ -118,7 +127,7 @@ class _HeaderState extends State<Header> {
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       Text(
-                        "Selamat Datang !",
+                        greeting,
                         style: TextStyle(
                           fontWeight: FontWeight.w600,
                           fontSize: 15.sp,
@@ -142,11 +151,13 @@ class _HeaderState extends State<Header> {
                       ),
                       SizedBox(height: 10.h),
                       Text(
-                        DateFormat('EEEE, d MMMM y').format(DateTime.now()),
+                        DateFormat('EEEE, d MMMM y', 'id_ID')
+                            .format(DateTime.now()),
                         style: TextStyle(
-                            fontSize: 13.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
+                          fontSize: 13.sp,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
                       ),
                     ],
                   ),

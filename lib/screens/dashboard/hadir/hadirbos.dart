@@ -1,10 +1,8 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables, unused_import, non_constant_identifier_names, prefer_const_constructors_in_immutables, prefer_const_declarations, unnecessary_null_comparison, avoid_print
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables, unused_import, non_constant_identifier_names, prefer_const_constructors_in_immutables, prefer_const_declarations, unnecessary_null_comparison, avoid_print, avoid_unnecessary_containers
 
 import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
-
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
 import 'package:laporbos/model/user.dart';
@@ -117,16 +115,13 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
       ),
       backgroundColor: Colors.deepOrange.shade50,
       body: SafeArea(
-        child: CustomScrollView(
-          slivers: [
-            SliverToBoxAdapter(
-              child: SizedBox(height: 180.h, child: Header()),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(height: 160.h, child: SpecialOffers()),
-            ),
-            SliverToBoxAdapter(
-              child: Padding(
+        child: Container(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: 165.h, child: Header()),
+              SizedBox(height: 165.h, child: SpecialOffers()),
+              Padding(
                 padding: EdgeInsets.symmetric(horizontal: 20.w),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -152,73 +147,95 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                         ),
                       ],
                     ),
+                    SizedBox(
+                      height: 5.h,
+                    )
                   ],
                 ),
               ),
-            ),
-            SliverToBoxAdapter(
-              child: SizedBox(height: 10.h),
-            ),
-            isLoading
-                ? SliverFillRemaining(
-                    child: Center(
-                      child: CircularProgressIndicator(
-                        valueColor: AlwaysStoppedAnimation<Color>(
-                            Colors.orange), // Ganti warna sesuai keinginan Anda
-                      ),
-                    ),
-                  )
-                : SliverList(
-                    delegate: SliverChildBuilderDelegate(
-                      (context, index) {
-                        if (attendanceList.isEmpty) {
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 80.w),
-                            child: Center(
-                              child: ListTile(
-                                title: Text(
-                                  'Belum ada absen hari ini',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.black,
+              Expanded(
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: [
+                      isLoading
+                          ? Center(
+                              child: CircularProgressIndicator(
+                                valueColor: AlwaysStoppedAnimation<Color>(Colors
+                                    .orange), // Ganti warna sesuai keinginan Anda
+                              ),
+                            )
+                          : attendanceList.isEmpty
+                              ? Padding(
+                                  padding:
+                                      EdgeInsets.symmetric(horizontal: 80.w),
+                                  child: Center(
+                                    child: ListTile(
+                                      title: Text(
+                                        'Belum ada absen hari ini',
+                                        style: TextStyle(
+                                          fontWeight: FontWeight.w600,
+                                          color: Colors.black,
+                                        ),
+                                      ),
+                                    ),
                                   ),
-                                ),
-                              ),
-                            ),
-                          );
-                        } else {
-                          final attendance = attendanceList[index];
-                          return Padding(
-                            padding: EdgeInsets.symmetric(horizontal: 15.w),
-                            child: Card(
-                              color: Color.fromARGB(255, 255, 233, 226),
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(12.0.r),
-                              ),
-                              child: ListTile(
-                                leading: ClipOval(
-                                  child: Image.asset('assets/images/b.jpeg',
-                                      width: 50.w, height: 70.h),
-                                ),
-                                title: Text(attendance.officerName),
-                                subtitle: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text('Tanggal: ${attendance.attdDate}'),
-                                    Text('Status: ${attendance.status}'),
-                                    Text('Absen Masuk Tepat Waktu.'),
-                                  ],
-                                ),
-                              ),
-                            ),
-                          );
-                        }
-                      },
-                      childCount:
-                          attendanceList.isEmpty ? 1 : attendanceList.length,
-                    ),
-                  )
-          ],
+                                )
+                              : Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  crossAxisAlignment: CrossAxisAlignment.center,
+                                  children: attendanceList.map((attendance) {
+                                    return Padding(
+                                      padding: EdgeInsets.symmetric(
+                                          horizontal: 15.w),
+                                      child: Column(
+                                        children: [
+                                          Card(
+                                            color: Color.fromARGB(
+                                                255, 255, 233, 226),
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(12.0.r),
+                                            ),
+                                            child: ListTile(
+                                              leading: ClipOval(
+                                                child: Image.asset(
+                                                  'assets/images/b.jpeg',
+                                                  width: 50.w,
+                                                  height: 60.h,
+                                                ),
+                                              ),
+                                              title:
+                                                  Text(attendance.officerName),
+                                              subtitle: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(
+                                                      'Tanggal: ${attendance.attdDate}'),
+                                                  Text(
+                                                      'Status: ${attendance.status}'),
+                                                  Text(
+                                                      'Absen Masuk Tepat Waktu.'),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                          // SizedBox(
+                                          //     height: 5.0
+                                          //         .h), // Adjust the height as needed
+                                        ],
+                                      ),
+                                    );
+                                  }).toList(),
+                                )
+                    ],
+                  ),
+                ),
+              ),
+
+              // ),
+            ],
+          ),
         ),
       ),
     );

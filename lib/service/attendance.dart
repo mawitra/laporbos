@@ -8,7 +8,7 @@ class AttendanceService {
   Future<List<AttendanceModel>> getAllAttendanceData(
       String officerID, String token) async {
     final url =
-        Uri.parse('http://192.168.48.180:8000/api/attendaceByUser/$officerID');
+        Uri.parse('http://192.168.18.158:8000/api/attendaceByUser/$officerID');
     try {
       final response = await http.get(
         url,
@@ -24,11 +24,8 @@ class AttendanceService {
             .toList();
       }
     } catch (e) {
-      // Handle other errors, e.g., network errors
       print('Error in getAllAttendanceData: $e');
     }
-
-    // Return an empty list in case of errors
     return [];
   }
 }

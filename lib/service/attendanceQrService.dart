@@ -1,25 +1,32 @@
+// ignore_for_file: avoid_print
+
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-
-import 'package:laporbos/model/attendanceQr.dart';
+import 'package:laporbos/model/attendanceqr.dart';
 
 class AttendanceQrService {
-  final String baseUrl =
-      'http://192.168.1.155:8000/api/attendance/qr'; // Update with your API URL
+  Future<List<AttendanceQrModel>> fetchAttendanceData(
+      String custId, String locQR) async {
+    final url = Uri.parse('http://192.168.18.158:8000/api/attendance/qr');
 
-  Future<AttendanceQrModel?> postAttendanceQr(
-      String custId, String locQr) async {
-    final url = Uri.parse('$baseUrl/attendanceQR');
-    final response = await http.post(url, body: {
-      'cust_id': custId,
-      'loc_qr': locQr,
-    });
+    try {
+      final response = await http.post(
+        url,
+        body: {
+          'cust_id': custId,
+          'loc_qr': locQR,
+        },
+      );
 
-    if (response.statusCode == 200) {
-      final jsonData = json.decode(response.body);
-      return AttendanceQrModel.fromJson(jsonData);
-    } else {
-      return null; // Handle error cases here
+      if (response.statusCode == 200) {
+        final List<dynamic> data = json.decode(response.body);
+        return data.map((json) => AttendanceQrModel.fromJson(json)).toList();
+      } else {
+        throw Exception('Failed to load attendance data');
+      }
+    } catch (e) {
+      print('Error in getAllAttendanceData: $e');
     }
+    return [];
   }
 }

@@ -13,14 +13,4 @@ class StorageUtil {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('access_token', token);
   }
-
-  static Future<void> saveOfficerID(String officerID) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('officerID', user!.officerID);
-  }
-
-  static Future<String?> getOfficerID() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getString('officerID');
-  }
 }

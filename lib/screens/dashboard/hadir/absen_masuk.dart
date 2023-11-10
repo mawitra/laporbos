@@ -1,20 +1,16 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, prefer_final_fields, unused_field, non_constant_identifier_names, unused_local_variable
+// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names
 
 import 'package:flutter/material.dart';
+import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:google_maps_flutter/google_maps_flutter.dart';
-import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
-import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
-import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
 import 'package:laporbos/utils/scanner.dart';
-import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
-import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
-import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
+import 'package:geolocator/geolocator.dart';
+import 'package:latlong2/latlong.dart';
+import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
+import '../../../widget/dashboard/hadir/side_bar.dart';
 
 class AbsenMasuk extends StatefulWidget {
   const AbsenMasuk({super.key});
@@ -26,11 +22,25 @@ class AbsenMasuk extends StatefulWidget {
 class _AbsenMasukState extends State<AbsenMasuk> {
   int index_color = 2;
   String _result = '';
-  late GoogleMapController _controller;
-  Position? _position;
-  bool loading = false;
+  final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
+  Position? currentPosition;
+  bool isScanned = false;
 
-  LatLng _initialCameraPosition = LatLng(0, 0);
+  @override
+  void initState() {
+    super.initState();
+    _getCurrentLocation();
+  }
+
+  Future<void> _getCurrentLocation() async {
+    try {
+      currentPosition = await geolocator.getCurrentPosition(
+        desiredAccuracy: LocationAccuracy.best,
+      );
+    } catch (e) {
+      print("Error getting current location: $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -42,36 +52,30 @@ class _AbsenMasukState extends State<AbsenMasuk> {
             return IconButton(
               icon: Icon(Icons.menu, color: Colors.white),
               onPressed: () {
-                Scaffold.of(context)
-                    .openDrawer(); // Buka drawer saat tombol menu diklik
+                Scaffold.of(context).openDrawer();
               },
             );
           },
         ),
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
+        title: Text(
+          "Hadir BossQue",
+          style: TextStyle(
+            color: Colors.white,
+            fontSize: 20.sp,
+            fontWeight: FontWeight.w600,
+          ),
+        ),
+        centerTitle: true,
       ),
-      // body: Center(
-      //   child: Text(
-      //     _result.isNotEmpty
-      //         ? _result
-      //         : 'Data', // Check if _result is not empty
-      //     style: TextStyle(
-      //       fontWeight: FontWeight.bold,
-      //       fontSize: 20,
-      //     ),
-      //   ),
-      // ),
-
       body: SafeArea(
         child: Container(
           child: Column(
             children: [
-              SizedBox(
-                height: 40,
-              ),
+              SizedBox(height: 20),
               Container(
-                height: 300,
+                height: 400.h,
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 decoration: BoxDecoration(
                   color: const Color.fromARGB(255, 255, 243, 241),
@@ -81,31 +85,23 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                     width: 2.0,
                   ),
                 ),
-                child: Row(
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Teks akan dimulai dari kiri
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Teks di tengah secara vertikal
-                      children: [
-                        Text(
-                          _result.isNotEmpty
-                              ? _result
-                              : 'Data', // Check if _result is not empty
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 20,
+                child: Center(
+                  child: isScanned // Periksa isScanned
+                      ? OpenStreetMapSearchAndPick(
+                          center: LatLong(
+                            currentPosition!.latitude,
+                            currentPosition!.longitude,
                           ),
-                        ),
-                      ],
-                    ),
-                  ],
+                          buttonColor: AppColor.primaryColor,
+                          onPicked: (pickedData) {
+                            // ...
+                          },
+                        )
+                      : Text(
+                          'Scan QR terlebih dahulu'), // Pesan ketika belum discan
                 ),
               ),
-              SizedBox(
-                height: 10,
-              ),
+              SizedBox(height: 10),
             ],
           ),
         ),
@@ -138,7 +134,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
 
   Future<void> _openScanner(Position position) async {
     try {
-      // Buka scanner QR setelah mendapatkan lokasi
       final result = await Navigator.push(
         context,
         MaterialPageRoute(builder: (c) => UtilScanner()),
@@ -149,8 +144,10 @@ class _AbsenMasukState extends State<AbsenMasuk> {
 
       if (result != null && result is Barcode) {
         setState(() {
+          isScanned = true;
+
           _result =
-              'Data: ${result.code}\nLatitude: ${position.latitude}\nLongitude: ${position.longitude}\nAlamat: ${place.street}, ${place.subLocality}, ${place.locality}, ${place.postalCode}, ${place.country} ';
+              'Data: ${result.code}\nLatitude: ${position.latitude}\nLongitude: ${position.longitude}\nAlamat: ${place.subLocality}, ${place.locality}, ${place.postalCode}, ';
         });
       }
     } catch (e) {
@@ -158,7 +155,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
     }
   }
 
-//getLatLong
   Future<Position> _getGeoLocationPosition() async {
     try {
       bool serviceEnabled;
@@ -182,7 +178,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
         throw 'Location permission denied forever, we cannot access';
       }
 
-      // Continue accessing the device's position
       return await Geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.high,
       );

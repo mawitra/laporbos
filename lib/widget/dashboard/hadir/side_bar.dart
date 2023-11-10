@@ -42,10 +42,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
     if (authToken != null) {
       final UserModel? userData = await UserService.fetchUserData(authToken);
 
-      if (userData != null) {
-        // Dapatkan UserProvider menggunakan konteks
-        final userProvider = context.read<UserProvider>();
-        userProvider.setUser(userData);
+      if (mounted) {
+        if (userData != null) {
+          // Dapatkan UserProvider menggunakan konteks
+          final userProvider = context.read<UserProvider>();
+          userProvider.setUser(userData);
+        }
       }
     }
   }

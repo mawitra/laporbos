@@ -95,7 +95,8 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          DateFormat('EEEE, d MMMM y').format(DateTime.now()),
+                          DateFormat('EEEE, d MMMM y', 'id_ID')
+                              .format(DateTime.now()),
                           style: TextStyle(fontSize: 14),
                         ),
                       ],
@@ -145,7 +146,8 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
                               fontSize: 16, fontWeight: FontWeight.bold),
                         ),
                         Text(
-                          DateFormat('EEEE, d MMMM y').format(DateTime.now()),
+                          DateFormat('EEEE, d MMMM y', 'id_ID')
+                              .format(DateTime.now()),
                           style: TextStyle(fontSize: 14),
                         ),
                       ],
