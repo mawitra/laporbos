@@ -34,7 +34,6 @@ class AttendanceModel {
     required this.lastUpdate,
     required this.lastUpdateBy,
   });
-
   factory AttendanceModel.fromJson(Map<String, dynamic> json) {
     return AttendanceModel(
       attdID: json['Attd_ID'],
@@ -45,8 +44,10 @@ class AttendanceModel {
       attdDate: json['Attd_Date'],
       status: json['Status'],
       attdPic: json['Attd_Pic'],
-      latitude: json['Latitude'],
-      longitude: json['Longitude'],
+      latitude: json['Latitude'] ??
+          '', // If Latitude is null, default to an empty string
+      longitude: json['Longitude'] ??
+          '', // If Longitude is null, default to an empty string
       createDate: json['Create_Date'],
       createBy: json['Create_By'],
       lastUpdate: json['Last_Update'],

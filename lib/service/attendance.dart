@@ -18,10 +18,17 @@ class AttendanceService {
       );
 
       if (response.statusCode == 200) {
-        final List<dynamic> attendanceDataList = json.decode(response.body);
-        return attendanceDataList
-            .map((data) => AttendanceModel.fromJson(data))
-            .toList();
+        final dynamic decodedData = json.decode(response.body);
+
+        if (decodedData is List) {
+          return decodedData
+              .map((data) => AttendanceModel.fromJson(data))
+              .toList();
+        } else {
+          print('moshow');
+          // Handle the case where the response is not a list
+          // You might want to return a single item or handle it differently
+        }
       }
     } catch (e) {
       print('Error in getAllAttendanceData: $e');

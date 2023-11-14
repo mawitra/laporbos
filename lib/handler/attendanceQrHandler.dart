@@ -2,50 +2,44 @@
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:laporbos/model/attendanceqr.dart';
+import 'package:laporbos/model/user.dart';
 import 'dart:convert';
 import 'dart:async';
+
 import 'package:laporbos/service/attendanceQrService.dart';
-import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:laporbos/service/userService.dart';
 
-class AttendanceQrHandler {
-  final BuildContext context;
-  AttendanceQrHandler(this.context);
-  Future<void> atttendanceQr(String custId, String locQR) async {
-    final attendanceService = AttendanceQrService();
-    final List<AttendanceQrModel> response =
-        await attendanceService.fetchAttendanceData(custId, locQR);
+class QRCodeHandler {
+  final String custId;
 
-    if (response.isNotEmpty) {
-      final AttendanceQrModel loginResponse = response[0];
-      final cust_Name = loginResponse.cust_name;
-      final lockQr1 = loginResponse.loc_QR1;
-      final lockQr2 = loginResponse.loc_QR2;
+  QRCodeHandler({required this.custId});
 
-      await saveCustName(cust_Name!);
-      await saveLockQr1(lockQr1!);
-      await saveLockQr2(lockQr2!);
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Gagal Membaca QrCode'),
-        ),
-      );
+  Future<bool> handleQRCode(String qrCode, String token) async {
+    try {
+      UserModel? userData = await UserService.fetchUserData(token);
+
+      if (userData != null) {
+        String custIdFromUserData = userData.custID;
+
+        List<AttendanceQRModel> qrData =
+            await AttendanceQRService.validateQRCode(
+                custIdFromUserData, qrCode, token);
+
+        if (qrData.isNotEmpty) {
+          print('Valid QR Code: ${qrData[0]}');
+          return true; // Validation successful
+        } else {
+          print('Invalid QR Code');
+          return false; // Validation failed
+        }
+      } else {
+        print('Failed to fetch user data');
+        return false; // Validation failed
+      }
+    } catch (e) {
+      // Handle errors
+      print('Error: $e');
+      return false; // Validation failed
     }
-  }
-
-  Future<void> saveCustName(String custName) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('Cust_Name', custName);
-  }
-
-  Future<void> saveLockQr1(String lockQr) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('loc_QR1', lockQr);
-  }
-
-  Future<void> saveLockQr2(String lockQr) async {
-    final prefs = await SharedPreferences.getInstance();
-    prefs.setString('loc_QR2', lockQr);
   }
 }

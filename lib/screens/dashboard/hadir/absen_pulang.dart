@@ -7,6 +7,7 @@ import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
 import 'package:laporbos/utils/scanner.dart';
+import 'package:laporbos/utils/storage.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
 import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
@@ -20,7 +21,7 @@ class AbsenPulang extends StatefulWidget {
 }
 
 class _AbsenPulangState extends State<AbsenPulang> {
-  int index_color = 2;
+  int index_color = 3;
   String _result = '';
   @override
   Widget build(BuildContext context) {
@@ -70,9 +71,13 @@ class _AbsenPulangState extends State<AbsenPulang> {
   }
 
   Future<void> _openScanner() async {
+    final authToken = await StorageUtil.getToken();
     final result = await Navigator.push(
       context,
-      MaterialPageRoute(builder: (c) => UtilScanner()),
+      MaterialPageRoute(
+          builder: (c) => ScannerUtils(
+                authToken: authToken!,
+              )),
     );
 
     if (result != null && result is Barcode) {

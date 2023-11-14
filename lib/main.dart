@@ -36,9 +36,7 @@ class MyApp extends StatelessWidget {
           debugShowCheckedModeBanner: false,
           home: Bottom(
             initialIndex: 0,
-            onIndexChanged: (int newIndex) {
-              // Tambahkan logika yang sesuai di sini
-            },
+            onIndexChanged: (int newIndex) {},
           ),
         );
       },

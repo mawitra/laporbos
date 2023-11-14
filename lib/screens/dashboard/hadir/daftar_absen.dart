@@ -122,7 +122,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
                   children: [
                     SizedBox(width: 3),
                     Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar Anda
+                      'assets/icons/p.png',
                       width: 70,
                       height: 55,
                     ),

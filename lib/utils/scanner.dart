@@ -3,30 +3,34 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:laporbos/handler/attendanceQrHandler.dart';
+import 'package:laporbos/model/attendanceqr.dart';
 import 'package:laporbos/service/attendanceQrService.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:http/http.dart' as http;
 
-class UtilScanner extends StatefulWidget {
-  const UtilScanner({super.key});
+class ScannerUtils extends StatefulWidget {
+  final String authToken;
+
+  ScannerUtils({Key? key, required this.authToken}) : super(key: key);
 
   @override
-  State<UtilScanner> createState() => _ScannerState();
+  State<ScannerUtils> createState() => _ScannerState(authToken: authToken);
 }
 
-class _ScannerState extends State<UtilScanner> {
+class _ScannerState extends State<ScannerUtils> {
   bool _flashOn = false;
   bool _frontCam = false;
   GlobalKey _qrKey = GlobalKey();
   late QRViewController _controller;
-  final TextEditingController cust_id = TextEditingController();
-  final TextEditingController locQR = TextEditingController();
+  late QRCodeHandler _qrCodeHandler;
 
-  void attendanceQrHandler() {
-    AttendanceQrHandler(context).atttendanceQr(
-      cust_id.text,
-      locQR.text,
-    );
+  final String authToken;
+
+  _ScannerState({required this.authToken});
+  @override
+  void initState() {
+    super.initState();
+    _qrCodeHandler = QRCodeHandler(custId: widget.authToken);
   }
 
   @override
@@ -55,12 +59,27 @@ class _ScannerState extends State<UtilScanner> {
             overlay: QrScannerOverlayShape(borderColor: Colors.white),
             onQRViewCreated: (QRViewController controller) {
               this._controller = controller;
-              controller.scannedDataStream.listen((barcode) {
+              controller.scannedDataStream.listen((barcode) async {
                 if (mounted) {
                   _controller.dispose();
-                  Navigator.pop(context, barcode);
-                  // Perform validation on the scanned QR code content
-                  attendanceQrHandler(); // Invoke the method here
+
+                  bool validationSuccess = await _qrCodeHandler.handleQRCode(
+                      barcode.code!, authToken!);
+
+                  if (validationSuccess) {
+                    Navigator.pop(context, barcode);
+                  } else {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      SnackBar(
+                        content: Text(
+                            'Failed to validate QR code. Please try again.'),
+                      ),
+                    );
+
+                    Future.delayed(Duration(seconds: 2), () {
+                      _controller.resumeCamera();
+                    });
+                  }
                 }
               });
             },

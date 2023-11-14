@@ -43,7 +43,7 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
 
   @override
   void dispose() {
-    _isMounted = false; // Set the flag to false in dispose
+    _isMounted = false;
     super.dispose();
   }
 
@@ -220,9 +220,6 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                               ),
                                             ),
                                           ),
-                                          // SizedBox(
-                                          //     height: 5.0
-                                          //         .h), // Adjust the height as needed
                                         ],
                                       ),
                                     );

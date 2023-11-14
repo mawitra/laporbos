@@ -43,10 +43,11 @@ dependencies:
   qr_code_scanner: ^1.0.1
   geolocator: ^7.6.2
   geocoding: ^2.1.1
-  open_street_map_search_and_pick: ^0.1.0
+  # open_street_map_search_and_pick: ^0.1.0
 
   latlong2: ^0.8.2
   flutter_map: ^3.1.0
+  open_street_map_search_and_pick: ^0.1.0
 
 dev_dependencies:
   flutter_test:
