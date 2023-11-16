@@ -26,8 +26,6 @@ class AttendanceService {
               .toList();
         } else {
           print('moshow');
-          // Handle the case where the response is not a list
-          // You might want to return a single item or handle it differently
         }
       }
     } catch (e) {

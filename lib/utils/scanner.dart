@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import, unnecessary_null_comparison
+// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import, unnecessary_null_comparison, use_build_context_synchronously
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -20,10 +20,10 @@ class ScannerUtils extends StatefulWidget {
 class _ScannerState extends State<ScannerUtils> {
   bool _flashOn = false;
   bool _frontCam = false;
+  bool isValidationInProgress = false;
   GlobalKey _qrKey = GlobalKey();
   late QRViewController _controller;
   late QRCodeHandler _qrCodeHandler;
-
   final String authToken;
 
   _ScannerState({required this.authToken});
@@ -60,26 +60,28 @@ class _ScannerState extends State<ScannerUtils> {
             onQRViewCreated: (QRViewController controller) {
               this._controller = controller;
               controller.scannedDataStream.listen((barcode) async {
-                if (mounted) {
-                  _controller.dispose();
+                if (isValidationInProgress) {
+                  return;
+                }
 
-                  bool validationSuccess = await _qrCodeHandler.handleQRCode(
-                      barcode.code!, authToken!);
+                isValidationInProgress = true;
 
-                  if (validationSuccess) {
-                    Navigator.pop(context, barcode);
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                            'Failed to validate QR code. Please try again.'),
-                      ),
-                    );
+                bool validationSuccess =
+                    await _qrCodeHandler.handleQRCode(barcode.code!, authToken);
 
-                    Future.delayed(Duration(seconds: 2), () {
-                      _controller.resumeCamera();
-                    });
-                  }
+                if (validationSuccess) {
+                  Navigator.pop(context, barcode);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('Qr Code Tidak sesuai / gagal membaca !'),
+                    ),
+                  );
+
+                  Future.delayed(Duration(seconds: 2), () {
+                    isValidationInProgress = false;
+                    _controller.resumeCamera();
+                  });
                 }
               });
             },

@@ -54,7 +54,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
           child: Column(
             children: [
               SizedBox(
-                height: 40,
+                height: 40.h,
               ),
               Container(
                 height: 70,
@@ -206,7 +206,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
                 ),
               ),
               SizedBox(
-                height: 10,
+                height: 10.h,
               ),
               Container(
                 height: 70,

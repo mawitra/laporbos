@@ -1,16 +1,14 @@
-// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables
+// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/utils/getGeolocation.dart';
 import 'package:laporbos/utils/scanner.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:laporbos/utils/storage.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
-
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import '../../../widget/dashboard/hadir/side_bar.dart';
 
@@ -75,7 +73,7 @@ class _AbsenMasukState extends State<AbsenMasuk> {
         child: Container(
           child: Column(
             children: [
-              SizedBox(height: 20),
+              SizedBox(height: 20.h),
               Container(
                 height: 400.h,
                 margin: EdgeInsets.symmetric(horizontal: 20),
@@ -88,21 +86,19 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                   ),
                 ),
                 child: Center(
-                  child: isScanned // Periksa isScanned
+                  child: isScanned
                       ? OpenStreetMapSearchAndPick(
                           center: LatLong(
                             currentPosition!.latitude,
                             currentPosition!.longitude,
                           ),
                           buttonColor: AppColor.primaryColor,
-                          onPicked: (pickedData) {
-                            // ...
-                          },
+                          onPicked: (pickedData) {},
                         )
                       : Text('Scan QR terlebih dahulu'),
                 ),
               ),
-              SizedBox(height: 10),
+              SizedBox(height: 10.h),
               Container(
                 margin: EdgeInsets.symmetric(horizontal: 20),
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
@@ -111,7 +107,7 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                   borderRadius: BorderRadius.circular(10),
                   border: Border.all(
                     color: Colors.orange,
-                    width: 2.0,
+                    width: 2.0.w,
                   ),
                 ),
                 child: SizedBox(
@@ -140,6 +136,21 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+              SizedBox(height: 10.h),
+              Visibility(
+                visible: isScanned,
+                child: ElevatedButton(
+                  onPressed: () {
+                    // Tindakan yang ingin dilakukan saat tombol Absen Masuk ditekan
+                    // Contoh: memanggil fungsi untuk proses absen masuk
+                    // handleAbsenMasuk();
+                  },
+                  child: Text('Absen Masuk'),
+                  style: ElevatedButton.styleFrom(
+                    primary: AppColor.primaryColor,
                   ),
                 ),
               ),
@@ -179,9 +190,10 @@ class _AbsenMasukState extends State<AbsenMasuk> {
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (c) => ScannerUtils(
-                  authToken: authToken!,
-                )),
+          builder: (c) => ScannerUtils(
+            authToken: authToken!,
+          ),
+        ),
       );
       final placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
@@ -192,11 +204,10 @@ class _AbsenMasukState extends State<AbsenMasuk> {
           isScanned = true;
 
           _result =
-              'Alamat Lengkap: Jalan ${place.subLocality}, ${place.thoroughfare}, RT/RW ${place.subThoroughfare}/${place.thoroughfare}, Kelurahan ${place.subAdministrativeArea}, Kota ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, Negara ${place.country}';
+              '${place.subLocality}, ${place.thoroughfare}, ${place.subAdministrativeArea}, ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, Negara ${place.country}';
         });
       }
     } catch (e) {
-      // ignore: avoid_print
       print("Error: $e");
     }
   }
