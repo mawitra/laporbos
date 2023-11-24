@@ -1,10 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:laporbos/config.dart';
 import 'package:laporbos/model/user.dart';
 
 class UserService {
   static Future<UserModel?> fetchUserData(String token) async {
-    final url = Uri.parse('http://192.168.18.158:8000/api/me');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/me');
 
     try {
       final response = await http.get(

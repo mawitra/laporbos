@@ -27,19 +27,18 @@ class QRCodeHandler {
 
         if (qrData.isNotEmpty) {
           print('Valid QR Code: ${qrData[0]}');
-          return true; // Validation successful
+          return true;
         } else {
           print('Invalid QR Code');
-          return false; // Validation failed
+          return false;
         }
       } else {
         print('Failed to fetch user data');
-        return false; // Validation failed
+        return false;
       }
     } catch (e) {
-      // Handle errors
       print('Error: $e');
-      return false; // Validation failed
+      return false;
     }
   }
 }

@@ -13,4 +13,9 @@ class StorageUtil {
     final prefs = await SharedPreferences.getInstance();
     prefs.setString('access_token', token);
   }
+
+  static Future<void> clearToken() async {
+    final prefs = await SharedPreferences.getInstance();
+    prefs.remove('access_token');
+  }
 }

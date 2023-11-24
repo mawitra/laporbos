@@ -5,8 +5,8 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/screens/auth/login.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_masuk.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenMasuk/absen_masuk.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenPulang/absen_pulang.dart';
 import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
@@ -28,7 +28,6 @@ class CustomDrawer extends StatefulWidget {
 }
 
 class _CustomDrawerState extends State<CustomDrawer> {
-  int index_color = 0;
   UserModel? user;
 
   @override
@@ -57,7 +56,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
     final userProvider = context.watch<UserProvider>();
     return Drawer(
       child: Material(
-        color: Colors.deepOrange.shade50,
+        color: AppColor.optionColor,
         child: Padding(
           padding: const EdgeInsets.fromLTRB(25.0, 65, 25, 0).w,
           child: Column(
@@ -132,7 +131,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               SizedBox(height: 30.h),
               DrawerItem(
                 name: 'Absen Masuk',
-                icon: Icons.message_outlined,
+                icon: Icons.drive_folder_upload,
                 onTap: () {
                   widget.onIndexSelected(2);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -146,7 +145,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               SizedBox(height: 30.h),
               DrawerItem(
                 name: 'Absen Keluar',
-                icon: Icons.favorite_outline,
+                icon: Icons.archive_outlined,
                 onTap: () {
                   widget.onIndexSelected(3);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -163,12 +162,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
                 height: 10.h,
                 color: Colors.black,
               ),
-              SizedBox(height: 30.h),
-              DrawerItem(
-                name: 'Setting',
-                icon: Icons.settings,
-                onTap: () {},
-              ),
+              // SizedBox(height: 30.h),
+              // DrawerItem(
+              //   name: 'Setting',
+              //   icon: Icons.settings,
+              //   onTap: () {},
+              // ),
               SizedBox(height: 30.h),
               DrawerItem(
                 name: 'Log out',

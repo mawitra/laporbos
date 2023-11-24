@@ -1,16 +1,22 @@
-// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print
+// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print, unused_element
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
+import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
+import 'package:laporbos/model/attendance.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenMasuk/in.dart';
+import 'package:laporbos/service/attendanceIn.dart';
+import 'package:laporbos/service/userService.dart';
 import 'package:laporbos/utils/getGeolocation.dart';
 import 'package:laporbos/utils/scanner.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:laporbos/utils/storage.dart';
 import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
-import '../../../widget/dashboard/hadir/side_bar.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../widget/dashboard/hadir/side_bar.dart';
 
 class AbsenMasuk extends StatefulWidget {
   const AbsenMasuk({super.key});
@@ -20,16 +26,19 @@ class AbsenMasuk extends StatefulWidget {
 }
 
 class _AbsenMasukState extends State<AbsenMasuk> {
+  late SharedPreferences _prefs;
+
   int index_color = 2;
   String _result = '';
   final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
   Position? currentPosition;
   bool isScanned = false;
-
+  bool isSubmitting = false;
   @override
   void initState() {
     super.initState();
     _getCurrentLocation();
+    _initializeSharedPreferences();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -39,6 +48,107 @@ class _AbsenMasukState extends State<AbsenMasuk> {
       );
     } catch (e) {
       print("Error getting current location: $e");
+    }
+  }
+
+  Future<void> _openScanner(Position position) async {
+    try {
+      final authToken = await StorageUtil.getToken();
+      final result = await Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (c) => ScannerUtils(
+            authToken: authToken!,
+          ),
+        ),
+      );
+      final placemarks =
+          await placemarkFromCoordinates(position.latitude, position.longitude);
+      final place = placemarks[0];
+
+      if (result != null && result is Barcode) {
+        setState(() {
+          isScanned = true;
+
+          _result =
+              '${place.subLocality}, ${place.thoroughfare}, ${place.subAdministrativeArea}, ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, Negara ${place.country}';
+        });
+      }
+    } catch (e) {
+      print("Error: $e");
+    }
+  }
+
+  Future<void> _initializeSharedPreferences() async {
+    _prefs = await SharedPreferences.getInstance();
+  }
+
+  bool _getAttendanceStatus() {
+    // Mendapatkan tanggal saat ini dalam format yyyy-MM-dd
+    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Mengecek apakah ada data absensi pada tanggal tersebut
+    return _prefs.getBool(currentDate) ?? false;
+  }
+
+  Future<void> _setAttendanceStatus() async {
+    // Mendapatkan tanggal saat ini dalam format yyyy-MM-dd
+    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
+
+    // Menyimpan status absensi pada tanggal tersebut
+    await _prefs.setBool(currentDate, true);
+  }
+
+  Future<void> attendanceInData() async {
+    final String? authToken = await StorageUtil.getToken();
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Anda sudah absen hari ini'),
+        duration: Duration(seconds: 2),
+      ),
+    );
+
+    if (authToken != null) {
+      try {
+        user = await UserService.fetchUserData(authToken);
+
+        String custId = user?.custID ?? '';
+        String officerId = user?.officerID ?? '';
+        String officerName = user?.officerName ?? '';
+        String locQR = "000DMC22091";
+        String pict = "../IMGUP/Out.DMC.6282297371652.2022.11.02.10.47.49.jpg";
+
+        AttendanceInService attendanceService = AttendanceInService();
+
+        final AttendanceData fetchedAttendanceData =
+            await attendanceService.attendanceIn(
+                custId,
+                officerId,
+                officerName,
+                locQR,
+                currentPosition!.latitude,
+                currentPosition!.longitude,
+                pict,
+                authToken);
+
+        await _setAttendanceStatus();
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Absen masuk berhasil'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      } catch (e) {
+        print('Error fetching data: $e');
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Absen masuk gagal'),
+            duration: Duration(seconds: 2),
+          ),
+        );
+      }
     }
   }
 
@@ -93,9 +203,23 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                             currentPosition!.longitude,
                           ),
                           buttonColor: AppColor.primaryColor,
+                          locationPinIconColor: AppColor.primaryColor,
+                          locationPinText: 'My Location',
+                          locationPinTextStyle: TextStyle(
+                            fontSize: 13,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
                           onPicked: (pickedData) {},
                         )
-                      : Text('Scan QR terlebih dahulu'),
+                      : Text(
+                          'Scan QR terlebih dahulu',
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                            color: Colors.black,
+                          ),
+                        ),
                 ),
               ),
               SizedBox(height: 10.h),
@@ -127,7 +251,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                               style: TextStyle(
                                   fontSize: 15, fontWeight: FontWeight.bold),
                             ),
-                            // Display the scanned address here
                             Text(
                               isScanned ? _result : 'Scan QR terlebih dahulu',
                               style: TextStyle(fontSize: 14),
@@ -143,10 +266,13 @@ class _AbsenMasukState extends State<AbsenMasuk> {
               Visibility(
                 visible: isScanned,
                 child: ElevatedButton(
-                  onPressed: () {
-                    // Tindakan yang ingin dilakukan saat tombol Absen Masuk ditekan
-                    // Contoh: memanggil fungsi untuk proses absen masuk
-                    // handleAbsenMasuk();
+                  onPressed: () async {
+                    if (!isSubmitting) {
+                      setState(() {
+                        isSubmitting = true;
+                      });
+                      await attendanceInData();
+                    }
                   },
                   child: Text('Absen Masuk'),
                   style: ElevatedButton.styleFrom(
@@ -182,33 +308,5 @@ class _AbsenMasukState extends State<AbsenMasuk> {
         },
       ),
     );
-  }
-
-  Future<void> _openScanner(Position position) async {
-    try {
-      final authToken = await StorageUtil.getToken();
-      final result = await Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (c) => ScannerUtils(
-            authToken: authToken!,
-          ),
-        ),
-      );
-      final placemarks =
-          await placemarkFromCoordinates(position.latitude, position.longitude);
-      final place = placemarks[0];
-
-      if (result != null && result is Barcode) {
-        setState(() {
-          isScanned = true;
-
-          _result =
-              '${place.subLocality}, ${place.thoroughfare}, ${place.subAdministrativeArea}, ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, Negara ${place.country}';
-        });
-      }
-    } catch (e) {
-      print("Error: $e");
-    }
   }
 }

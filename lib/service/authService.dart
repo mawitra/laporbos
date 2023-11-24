@@ -2,10 +2,12 @@
 
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:laporbos/config.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AuthService {
   Future<Map<String, dynamic>?> login(String username, String password) async {
-    final url = Uri.parse('http://192.168.18.158:8000/api/login');
+    final url = Uri.parse('${ApiConfig.baseUrl}/api/login');
 
     try {
       final response = await http.post(

@@ -1,32 +1,28 @@
-// ignore_for_file: unused_import
+class AttendanceData {
+  String attendanceId;
+  String customerId;
+  String officerId;
+  String officerName;
+  String locationQR;
+  String attendanceDate;
+  String status;
+  String attendancePic;
+  String latitude;
+  String longitude;
+  String createDate;
+  String createBy;
+  String lastUpdate;
+  String lastUpdateBy;
 
-import 'package:laporbos/model/user.dart';
-
-class AttendanceModel {
-  final String attdID;
-  final String custID;
-  final String officerID;
-  final String officerName;
-  final String locQR;
-  final String attdDate;
-  final String status;
-  final String attdPic;
-  final String latitude;
-  final String longitude;
-  final String createDate;
-  final String createBy;
-  final String lastUpdate;
-  final String lastUpdateBy;
-
-  AttendanceModel({
-    required this.attdID,
-    required this.custID,
-    required this.officerID,
+  AttendanceData({
+    required this.attendanceId,
+    required this.customerId,
+    required this.officerId,
     required this.officerName,
-    required this.locQR,
-    required this.attdDate,
+    required this.locationQR,
+    required this.attendanceDate,
     required this.status,
-    required this.attdPic,
+    required this.attendancePic,
     required this.latitude,
     required this.longitude,
     required this.createDate,
@@ -34,24 +30,23 @@ class AttendanceModel {
     required this.lastUpdate,
     required this.lastUpdateBy,
   });
-  factory AttendanceModel.fromJson(Map<String, dynamic> json) {
-    return AttendanceModel(
-      attdID: json['Attd_ID'],
-      custID: json['Cust_ID'],
-      officerID: json['Officer_ID'],
-      officerName: json['Officer_Name'],
-      locQR: json['Loc_QR'],
-      attdDate: json['Attd_Date'],
-      status: json['Status'],
-      attdPic: json['Attd_Pic'],
-      latitude: json['Latitude'] ??
-          '', // If Latitude is null, default to an empty string
-      longitude: json['Longitude'] ??
-          '', // If Longitude is null, default to an empty string
-      createDate: json['Create_Date'],
-      createBy: json['Create_By'],
-      lastUpdate: json['Last_Update'],
-      lastUpdateBy: json['Last_Update_By'],
+
+  factory AttendanceData.fromJson(Map<String, dynamic> json) {
+    return AttendanceData(
+      attendanceId: json['Attd_ID'] ?? "",
+      customerId: json['Cust_ID'] ?? "",
+      officerId: json['Officer_ID'] ?? "",
+      officerName: json['Officer_Name'] ?? "",
+      locationQR: json['Loc_QR'] ?? "",
+      attendanceDate: json['Attd_Date'] ?? "",
+      status: json['Status'] ?? "",
+      attendancePic: json['Attd_Pic'] ?? "",
+      latitude: json['Latitude'] ?? "",
+      longitude: json['Longitude'] ?? "",
+      createDate: json['Create_Date'] ?? "",
+      createBy: json['Create_By'] ?? "",
+      lastUpdate: json['Last_Update'] ?? "",
+      lastUpdateBy: json['Last_Update_By'] ?? "",
     );
   }
 }

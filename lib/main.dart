@@ -32,13 +32,7 @@ class MyApp extends StatelessWidget {
     return ScreenUtilInit(
       designSize: const Size(360, 850),
       builder: (context, child) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          home: Bottom(
-            initialIndex: 0,
-            onIndexChanged: (int newIndex) {},
-          ),
-        );
+        return MaterialApp(debugShowCheckedModeBanner: false, home: Login());
       },
     );
   }

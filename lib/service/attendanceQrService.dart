@@ -1,4 +1,5 @@
 // attendance_qr_handler.dart
+import 'package:laporbos/config.dart';
 import 'package:laporbos/model/attendanceqr.dart';
 import 'dart:convert';
 import 'package:http/http.dart' as http;
@@ -6,7 +7,7 @@ import 'package:http/http.dart' as http;
 class AttendanceQRService {
   static Future<List<AttendanceQRModel>> validateQRCode(
       String custId, String locQR, String token) async {
-    final String apiUrl = "http://192.168.18.158:8000/api/attendance/qr";
+    final String apiUrl = "${ApiConfig.baseUrl}/api/attendance/qr";
 
     final Map<String, String> requestBody = {
       "cust_id": custId,

@@ -4,8 +4,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_masuk.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenMasuk/absen_masuk.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenPulang/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/daftarAbsensi/absensiHarini.dart';
+import 'package:laporbos/screens/dashboard/hadir/daftarAbsensi/dataKehadiran.dart';
+
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
@@ -21,11 +24,12 @@ class DaftarAbsen extends StatefulWidget {
 
 class _DaftarAbsenState extends State<DaftarAbsen> {
   int index_color = 1;
-
+  bool isTapped = false;
+  bool isTappedRekap = false;
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepOrange.shade50,
+      backgroundColor: AppColor.borderColor,
       appBar: AppBar(
         leading: Builder(
           builder: (BuildContext context) {
@@ -53,210 +57,171 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
         child: Container(
           child: Column(
             children: [
-              SizedBox(
-                height: 40.h,
-              ),
-              Container(
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 2.0,
+              GestureDetector(
+                onTap: () {
+                  setState(() {
+                    isTapped = !isTapped;
+                  });
+                  // Navigate to the desired page with a sliding animation and delay
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          AbsenHariIni(),
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset(0.0, 0.0);
+                        const curve = Curves.easeInOutQuart;
+
+                        var tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
+
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                      transitionDuration: Duration(milliseconds: 500),
+                      opaque: false,
+                    ),
+                  ).then((_) {
+                    // Handle the state reset when returning from the next page
+                    setState(() {
+                      isTapped = false;
+                    });
+                  });
+                },
+                child: Container(
+                  height: 70.h,
+                  margin: EdgeInsets.only(
+                    left: 20.w,
+                    right: 20.w,
+                    top: 40.h,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isTapped
+                        ? AppColor.borderColor
+                        : Color.fromARGB(255, 255, 250, 250),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
+                      color: Colors.orange,
+                      width: 2.0,
+                    ),
+                  ),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/icons/p.png',
+                        width: 70.w,
+                        height: 55.h,
+                      ),
+                      Container(
+                        height: 55.h,
+                        width: 2.w,
+                        color: Colors.orange,
+                      ),
+                      SizedBox(width: 10.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Absensi Hari ini',
+                            style: TextStyle(
+                                fontSize: 16.sp, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            DateFormat('EEEE, d MMMM y', 'id_ID')
+                                .format(DateTime.now()),
+                            style: TextStyle(fontSize: 14.sp),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 3),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar Anda
-                      width: 70,
-                      height: 55,
+              ),
+              GestureDetector(
+                onTap: () {
+                  // Navigation logic for the second card
+                  Navigator.push(
+                    context,
+                    PageRouteBuilder(
+                      pageBuilder: (context, animation, secondaryAnimation) =>
+                          RekaDataAbsen(), // Adjust the destination page
+                      transitionsBuilder:
+                          (context, animation, secondaryAnimation, child) {
+                        const begin = Offset(1.0, 0.0);
+                        const end = Offset(0.0, 0.0);
+                        const curve = Curves.easeInOutQuart;
+
+                        var tween = Tween(begin: begin, end: end)
+                            .chain(CurveTween(curve: curve));
+
+                        var offsetAnimation = animation.drive(tween);
+
+                        return SlideTransition(
+                          position: offsetAnimation,
+                          child: child,
+                        );
+                      },
+                      transitionDuration: Duration(milliseconds: 500),
+                      opaque: false,
                     ),
-                    SizedBox(width: 3), // Jarak antara ikon dan elemen teks
-                    Container(
-                      height:
-                          55, // Sesuaikan tinggi garis sesuai kebutuhan Anda
-                      width: 2, // Lebar garis vertikal
+                  );
+                },
+                child: Container(
+                  // Second card
+                  height: 70.h,
+                  margin: EdgeInsets.only(
+                    left: 20.h,
+                    right: 20.h,
+                    top: 10.w,
+                  ),
+                  decoration: BoxDecoration(
+                    color: isTappedRekap
+                        ? AppColor.borderColor
+                        : Color.fromARGB(255, 255, 250, 250),
+                    borderRadius: BorderRadius.circular(10),
+                    border: Border.all(
                       color: Colors.orange,
+                      width: 2.0,
                     ),
-                    SizedBox(width: 10), // Jarak antara garis dan elemen teks
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Teks akan dimulai dari kiri
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Teks di tengah secara vertikal
-                      children: [
-                        Text(
-                          'Absensi Hari ini',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          DateFormat('EEEE, d MMMM y', 'id_ID')
-                              .format(DateTime.now()),
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 2.0,
+                  ),
+                  child: Row(
+                    children: [
+                      Image.asset(
+                        'assets/icons/p.png',
+                        width: 70.w,
+                        height: 55.h,
+                      ),
+                      Container(
+                        height: 55.h,
+                        width: 2.w,
+                        color: Colors.orange,
+                      ),
+                      SizedBox(width: 10.w),
+                      Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Text(
+                            'Rekap Data Kehadiran',
+                            style: TextStyle(
+                                fontSize: 16.sp, fontWeight: FontWeight.bold),
+                          ),
+                          Text(
+                            'Data Keseluruhan Kehadiran ',
+                            style: TextStyle(fontSize: 14.sp),
+                          ),
+                        ],
+                      ),
+                    ],
                   ),
                 ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 3),
-                    Image.asset(
-                      'assets/icons/p.png',
-                      width: 70,
-                      height: 55,
-                    ),
-                    SizedBox(width: 3), // Jarak antara ikon dan elemen teks
-                    Container(
-                      height:
-                          55, // Sesuaikan tinggi garis sesuai kebutuhan Anda
-                      width: 2, // Lebar garis vertikal
-                      color: Colors.orange,
-                    ),
-                    SizedBox(width: 10), // Jarak antara garis dan elemen teks
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Teks akan dimulai dari kiri
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Teks di tengah secara vertikal
-                      children: [
-                        Text(
-                          'Masuk Terlambat',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          DateFormat('EEEE, d MMMM y', 'id_ID')
-                              .format(DateTime.now()),
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 10,
-              ),
-              Container(
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 2.0,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 3),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar Anda
-                      width: 70,
-                      height: 55,
-                    ),
-                    SizedBox(width: 3), // Jarak antara ikon dan elemen teks
-                    Container(
-                      height:
-                          55, // Sesuaikan tinggi garis sesuai kebutuhan Anda
-                      width: 2, // Lebar garis vertikal
-                      color: Colors.orange,
-                    ),
-                    SizedBox(width: 10), // Jarak antara garis dan elemen teks
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Teks akan dimulai dari kiri
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Teks di tengah secara vertikal
-                      children: [
-                        Text(
-                          'Rekap Data Kehadiran',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          'Data Keseluruhan Kehadiran ',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 10.h,
-              ),
-              Container(
-                height: 70,
-                margin: EdgeInsets.symmetric(horizontal: 20),
-                decoration: BoxDecoration(
-                  color: const Color.fromARGB(255, 255, 243, 241),
-                  borderRadius: BorderRadius.circular(10),
-                  border: Border.all(
-                    color: Colors.orange,
-                    width: 2.0,
-                  ),
-                ),
-                child: Row(
-                  children: [
-                    SizedBox(width: 3),
-                    Image.asset(
-                      'assets/icons/p.png', // Ganti dengan path gambar Anda
-                      width: 70,
-                      height: 55,
-                    ),
-                    SizedBox(width: 3), // Jarak antara ikon dan elemen teks
-                    Container(
-                      height:
-                          55, // Sesuaikan tinggi garis sesuai kebutuhan Anda
-                      width: 2, // Lebar garis vertikal
-                      color: Colors.orange,
-                    ),
-                    SizedBox(width: 10), // Jarak antara garis dan elemen teks
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment
-                          .start, // Teks akan dimulai dari kiri
-                      mainAxisAlignment: MainAxisAlignment
-                          .center, // Teks di tengah secara vertikal
-                      children: [
-                        Text(
-                          'Keterangan Ketidakhadiran',
-                          style: TextStyle(
-                              fontSize: 16, fontWeight: FontWeight.bold),
-                        ),
-                        Text(
-                          'Sakit | Izin | Alpa',
-                          style: TextStyle(fontSize: 14),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(
-                height: 10,
               ),
             ],
           ),

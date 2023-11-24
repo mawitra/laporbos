@@ -2,8 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_masuk.dart';
-import 'package:laporbos/screens/dashboard/hadir/absen_pulang.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenMasuk/absen_masuk.dart';
+import 'package:laporbos/screens/dashboard/hadir/absenPulang/absen_pulang.dart';
 import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
 
