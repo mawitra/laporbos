@@ -2,11 +2,13 @@
 
 import 'dart:async';
 import 'dart:convert';
+import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
+import 'package:laporbos/model/attendance1.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/screens/auth/login.dart';
 import 'package:laporbos/service/attendance.dart';
@@ -28,18 +30,18 @@ class HomeHadirBos extends StatefulWidget {
 
 class _HomeHadirBosState extends State<HomeHadirBos> {
   int index_color = 0;
-
   UserModel? user;
-
   List<AttendanceData> attendanceList = [];
   bool isLoading = true;
   bool _isMounted = false;
-
+  String resultImagePath = '';
+  String? selectedShiff;
+  DateTime? selectedShiftStartTime;
+  DateTime? selectedShiftEndTime;
   @override
   void initState() {
     super.initState();
     _isMounted = true;
-
     fetchUserAndAttendanceData();
   }
 
@@ -47,6 +49,42 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
   void dispose() {
     _isMounted = false;
     super.dispose();
+  }
+
+  void adjustSelectedShiftTime() {
+    switch (selectedShiff) {
+      case "Shiff 1 jam 08:00 - 17:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 0, 0);
+        break;
+      case "Shiff 2 jam 08:30 - 17:30":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 3, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+        break;
+      case "Shiff 3 jam 09:00 - 18:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 9, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 18, 0, 0);
+        break;
+      case "Shiff 4 jam 19:00 - 10:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 19, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        break;
+      case "Shiff 5 jam 10:00 - 10:08":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 8);
+        break;
+      // Add other cases as needed
+    }
   }
 
   Future<void> fetchUserAndAttendanceData() async {
@@ -64,7 +102,14 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
         String officerId = user?.officerID ?? '';
 
         AttendanceService attendanceService = AttendanceService();
-
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? savedShift = prefs.getString('selectedShift');
+        if (savedShift != null) {
+          setState(() {
+            selectedShiff = savedShift;
+            adjustSelectedShiftTime();
+          });
+        }
         final List<AttendanceData> fetchedAttendanceData =
             await attendanceService.getAllAttendanceData(
                 custId, officerId, authToken);
@@ -122,7 +167,8 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
           IconButton(
             icon: Icon(Icons.logout,
                 color: const Color.fromARGB(255, 255, 255, 255)),
-            onPressed: () {
+            onPressed: () async {
+              await StorageUtil.clearToken();
               Navigator.of(context).pushReplacement(MaterialPageRoute(
                 builder: (context) => Login(),
               ));
@@ -163,9 +209,6 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                         ),
                       ],
                     ),
-                    SizedBox(
-                      height: 5.h,
-                    )
                   ],
                 ),
               ),
@@ -186,21 +229,23 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                           Colors.orange),
                                     ),
                                   )
-                                : Padding(
-                                    padding:
-                                        EdgeInsets.symmetric(horizontal: 80.w),
-                                    child: Center(
-                                      child: ListTile(
-                                        title: Text(
-                                          'Belum ada absen hari ini',
+                                : Container(
+                                    margin: EdgeInsets.only(top: 20),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: [
+                                        Text(
+                                          "Belum ada absen hari ini",
                                           style: TextStyle(
+                                            fontSize: 15.sp,
                                             fontWeight: FontWeight.w600,
                                             color: Colors.black,
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ),
-                                  ),
+                                  )
                           ]
                         : attendanceList
                             .where((attendance) => isToday(
@@ -208,25 +253,24 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                             .map((attendance) {
                             DateTime attendanceDateTime =
                                 DateTime.parse(attendance.attendanceDate);
+                            adjustSelectedShiftTime();
 
-                            DateTime expectedTime = DateTime(
-                              attendanceDateTime.year,
-                              attendanceDateTime.month,
-                              attendanceDateTime.day,
-                              9,
-                              0,
-                              0,
-                            );
+                            DateTime expectedStartTime = selectedShiftStartTime ??
+                                DateTime
+                                    .now(); // Use DateTime.now() as a fallback value or choose a default value
+
+                            DateTime expectedEndTime = selectedShiftEndTime ??
+                                DateTime
+                                    .now(); // Use DateTime.now() as a fallback value or choose a default value
 
                             bool isOnTimeOrEarly =
-                                !attendanceDateTime.isAfter(expectedTime);
+                                !attendanceDateTime.isAfter(expectedStartTime);
 
-                            // Calculate the duration of lateness (if applicable)
                             Duration latenessDuration = isOnTimeOrEarly
                                 ? Duration()
-                                : attendanceDateTime.difference(expectedTime);
+                                : attendanceDateTime
+                                    .difference(expectedStartTime);
 
-                            // Determine text color based on lateness
                             Color textColor =
                                 isOnTimeOrEarly ? Colors.green : Colors.red;
 
@@ -238,20 +282,15 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                   borderRadius: BorderRadius.circular(12.0.r),
                                 ),
                                 child: Padding(
-                                  padding: const EdgeInsets.all(8.0),
+                                  padding: EdgeInsets.all(8),
                                   child: Row(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      ClipOval(
-                                        child: Image.asset(
-                                          'assets/images/hadirbos.png', // Replace with your image URL
-                                          width: 70.w,
-                                          height: 70.h,
-                                        ),
-                                      ),
-                                      SizedBox(
-                                        width: 16.w,
+                                      Image.file(
+                                        File(attendance.attendancePic),
+                                        width: 60.w,
+                                        height: 70.h,
                                       ),
                                       Expanded(
                                         child: Column(
@@ -271,7 +310,7 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                                     TextStyle(color: textColor),
                                               ),
                                             if (attendance.status == 'Out' &&
-                                                !isOnTimeOrEarly)
+                                                isOnTimeOrEarly)
                                               Text(
                                                 'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
                                                 style: TextStyle(

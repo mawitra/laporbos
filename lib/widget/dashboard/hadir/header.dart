@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_local_variable, unused_import, unnecessary_nullable_for_final_variable_declarations, prefer_const_declarations
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, unused_local_variable, unused_import, unnecessary_nullable_for_final_variable_declarations, prefer_const_declarations, use_build_context_synchronously, library_private_types_in_public_api
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -44,7 +44,6 @@ class _HeaderState extends State<Header> {
       final UserModel? userData = await UserService.fetchUserData(authToken);
 
       if (_isMounted) {
-        // Check if the widget is still mounted
         final userProvider = context.read<UserProvider>();
         userProvider.setUser(userData);
       }
@@ -75,20 +74,12 @@ class _HeaderState extends State<Header> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Text(
-                        //   greeting,
-                        //   style: TextStyle(
-                        //     fontWeight: FontWeight.w500,
-                        //     fontSize: 17.sp,
-                        //     color: Color.fromARGB(255, 255, 255, 255),
-                        //   ),
-                        // ),
                         if (userProvider.user != null)
                           Text(
                             'Haii, ${userProvider.user!.officerName}', // Access officerName from the user object
                             style: TextStyle(
                               fontWeight: FontWeight.w600,
-                              fontSize: 15.sp,
+                              fontSize: 16.sp,
                               color: Colors.white,
                             ),
                           ),
@@ -116,61 +107,107 @@ class _HeaderState extends State<Header> {
               borderRadius: BorderRadius.circular(15).r,
             ),
             child: Container(
-              height: 200.h,
-              padding: EdgeInsets.only(left: 15.w, right: 15.w),
-              child: Row(
-                crossAxisAlignment: CrossAxisAlignment.center,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: EdgeInsets.only(
+                left: 10.w,
+                top: 10.h,
+                // right: 14.w,
+                bottom: 20.h,
+              ),
+              // margin: EdgeInsets.only(left: 10.w, right: 20.w),
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Column(
+                  Row(
                     mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
-                        greeting,
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 15.sp,
-                          color: Colors.white,
-                        ),
-                      ),
-                      SizedBox(height: 5.h),
-                      Text(
-                        'Lorem Ipsum has been the industrys',
-                        style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      Text(
-                        'standard dummy ever since the 1500s, ',
-                        style: TextStyle(
-                            fontSize: 10.sp,
-                            color: Colors.white,
-                            fontWeight: FontWeight.bold),
-                      ),
-                      SizedBox(height: 10.h),
-                      Text(
-                        DateFormat('EEEE, d MMMM y', 'id_ID')
-                            .format(DateTime.now()),
-                        style: TextStyle(
-                          fontSize: 13.sp,
-                          color: Colors.white,
-                          fontWeight: FontWeight.bold,
-                        ),
+                      Column(
+                        children: [
+                          Row(
+                            children: [
+                              Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  Text(
+                                    "Selamat Datang !",
+                                    style: TextStyle(
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 16.sp,
+                                    ),
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Di Aplikasi Hadir ",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14.sp,
+                                        ),
+                                      ),
+                                      Text(
+                                        "BossQue.",
+                                        style: TextStyle(
+                                          color: AppColor.bekColor,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 14.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  Container(
+                                    height: 2.h,
+                                    width: 170.w,
+                                    color: Colors.white,
+                                  ),
+                                  SizedBox(
+                                    height: 5.h,
+                                  ),
+                                  Row(
+                                    children: [
+                                      Text(
+                                        "Silahkan lakukan absensi hari ini.",
+                                        style: TextStyle(
+                                          color: Colors.white,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 12.sp,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                  SizedBox(
+                                    height: 3.h,
+                                  ),
+                                  Text(
+                                    DateFormat('EEEE, d MMMM y', 'id_ID')
+                                        .format(DateTime.now()),
+                                    style: TextStyle(
+                                      fontSize: 12.sp,
+                                      color: Colors.white,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              SizedBox(
+                                width: 15.w,
+                              ),
+                              Image(
+                                width: 100.w,
+                                height: 100.h,
+                                image: AssetImage(
+                                  "assets/images/hadirbos.png",
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                  SizedBox(
-                    height: 20.h,
-                  ),
-                  Container(
-                    // padding: EdgeInsets.only(left: ),
-                    child: Image(
-                      width: 100.w,
-                      height: 100.h,
-                      image: AssetImage('assets/images/hadirbos.png'),
-                    ),
                   ),
                 ],
               ),

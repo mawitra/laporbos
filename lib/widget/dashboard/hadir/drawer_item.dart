@@ -27,7 +27,7 @@ class _DrawerItemState extends State<DrawerItem> {
         setState(() {
           _isTapped = !_isTapped;
         });
-        widget.onTap(); // Change 'onPressed' to 'onTap'
+        widget.onTap();
       },
       child: SizedBox(
         height: 40.h,

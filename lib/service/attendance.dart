@@ -4,9 +4,6 @@ import 'package:laporbos/config.dart';
 import 'package:laporbos/model/attendance.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
-import 'dart:convert';
-import 'package:http/http.dart' as http;
-import 'package:laporbos/model/attendance1.dart';
 
 class AttendanceService {
   Future<List<AttendanceData>> getAllAttendanceData(

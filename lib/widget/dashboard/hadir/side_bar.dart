@@ -1,4 +1,6 @@
-// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable, unused_import
+// ignore_for_file: prefer_const_constructors, non_constant_identifier_names, unused_local_variable, unused_import, use_build_context_synchronously, library_private_types_in_public_api
+
+import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
@@ -9,7 +11,7 @@ import 'package:laporbos/screens/dashboard/hadir/absenMasuk/absen_masuk.dart';
 import 'package:laporbos/screens/dashboard/hadir/absenPulang/absen_pulang.dart';
 import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/petugas/daftar_petugas.dart';
+
 import 'package:laporbos/service/userService.dart';
 import 'package:laporbos/utils/storage.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
@@ -63,17 +65,17 @@ class _CustomDrawerState extends State<CustomDrawer> {
             children: [
               Row(
                 children: [
-                  ClipOval(
-                    child: Image.asset(
-                      'assets/images/a.jpeg',
-                      width: 70.w,
-                      height: 80.h,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10.w,
-                  ),
+                  // ClipOval(
+                  //   child: Image.file(
+                  //     File(userProvider.user!.nikPic),
+                  //     width: 70.w,
+                  //     height: 90.h,
+                  //     fit: BoxFit.cover,
+                  //   ),
+                  // ),
+                  // SizedBox(
+                  //   width: 10.w,
+                  // ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
@@ -172,7 +174,12 @@ class _CustomDrawerState extends State<CustomDrawer> {
               DrawerItem(
                 name: 'Log out',
                 icon: Icons.logout,
-                onTap: () {},
+                onTap: () async {
+                  await StorageUtil.clearToken();
+                  Navigator.of(context).pushReplacement(MaterialPageRoute(
+                    builder: (context) => Login(),
+                  ));
+                },
               ),
             ],
           ),

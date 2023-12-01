@@ -78,9 +78,14 @@ class _ScannerState extends State<ScannerUtils> {
                     ),
                   );
 
-                  Future.delayed(Duration(seconds: 2), () {
+                  // Navigator.pop(context);
+
+                  Future.delayed(Duration(seconds: 1), () {
                     isValidationInProgress = false;
-                    _controller.resumeCamera();
+
+                    if (_controller != null && _controller.hasPermissions) {
+                      _controller.resumeCamera();
+                    }
                   });
                 }
               });

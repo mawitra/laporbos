@@ -1,5 +1,7 @@
 // ignore_for_file: prefer_const_constructors
 
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
@@ -9,6 +11,7 @@ import 'package:laporbos/model/user.dart';
 import 'package:laporbos/service/attendance.dart';
 import 'package:laporbos/service/userService.dart';
 import 'package:laporbos/utils/storage.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class AbsenHariIni extends StatefulWidget {
   const AbsenHariIni({super.key});
@@ -24,7 +27,9 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
   List<AttendanceData> attendanceList = [];
   bool isLoading = true;
   bool _isMounted = false;
-
+  String? selectedShiff;
+  DateTime? selectedShiftStartTime;
+  DateTime? selectedShiftEndTime;
   @override
   void initState() {
     super.initState();
@@ -54,7 +59,14 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
         String officerId = user?.officerID ?? '';
 
         AttendanceService attendanceService = AttendanceService();
-
+        SharedPreferences prefs = await SharedPreferences.getInstance();
+        String? savedShift = prefs.getString('selectedShift');
+        if (savedShift != null) {
+          setState(() {
+            selectedShiff = savedShift;
+            adjustSelectedShiftTime();
+          });
+        }
         final List<AttendanceData> fetchedAttendanceData =
             await attendanceService.getAllAttendanceData(
                 custId, officerId, authToken);
@@ -63,7 +75,14 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
           setState(() {
             attendanceList = fetchedAttendanceData;
             isLoading = false;
-            // showSnackbar(context);
+
+            // Check if there is no attendance for today
+            if (attendanceList
+                .where((attendance) =>
+                    isToday(DateTime.parse(attendance.attendanceDate)))
+                .isEmpty) {
+              showSnackbar(context);
+            }
           });
         }
       } catch (e) {
@@ -72,16 +91,46 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
         if (_isMounted) {
           setState(() {
             isLoading = false;
-            if (attendanceList
-                .where((attendance) =>
-                    isToday(DateTime.parse(attendance.attendanceDate)))
-                .isEmpty) {
-              showSnackbar(context);
-              // You may want to return here to avoid executing the code below
-            }
+            showSnackbar(context);
           });
         }
       }
+    }
+  }
+
+  void adjustSelectedShiftTime() {
+    switch (selectedShiff) {
+      case "Shiff 1 jam 08:00 - 17:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 0, 0);
+        break;
+      case "Shiff 2 jam 08:30 - 17:30":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 3, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+        break;
+      case "Shiff 3 jam 09:00 - 18:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 9, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 18, 0, 0);
+        break;
+      case "Shiff 4 jam 19:00 - 10:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 19, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        break;
+      case "Shiff 5 jam 10:00 - 10:08":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 8);
+        break;
+      // Add other cases as needed
     }
   }
 
@@ -130,7 +179,7 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
                             children: [
                               SizedBox(
                                 height:
-                                    MediaQuery.of(context).size.height * 0.4,
+                                    MediaQuery.of(context).size.height * 0.4.h,
                               ),
                               isLoading
                                   ? Center(
@@ -140,23 +189,23 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
                                                 Colors.orange),
                                       ),
                                     )
-                                  : Padding(
-                                      padding: EdgeInsets.symmetric(
-                                          horizontal: 80.w),
-                                      child: Center(
-                                        child: ListTile(
-                                          title: Center(
-                                            child: Text(
-                                              'Belum ada absen hari ini',
-                                              style: TextStyle(
-                                                fontWeight: FontWeight.w600,
-                                                color: Colors.black,
-                                              ),
+                                  : Container(
+                                      margin: EdgeInsets.only(top: 20),
+                                      child: Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.center,
+                                        children: [
+                                          Text(
+                                            "Belum ada absen hari ini",
+                                            style: TextStyle(
+                                              fontSize: 15.sp,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.black,
                                             ),
                                           ),
-                                        ),
+                                        ],
                                       ),
-                                    ),
+                                    )
                             ],
                           ),
                         ],
@@ -166,9 +215,9 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
                       ListCard(
                         attendanceList: attendanceList,
                         isLoading: isLoading,
-                      ),
-                      SizedBox(
-                        height: 20.h,
+                        selectedShiff: selectedShiff,
+                        selectedShiftStartTime: selectedShiftStartTime,
+                        selectedShiftEndTime: selectedShiftEndTime,
                       ),
                     ],
             ),
@@ -182,10 +231,16 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
 class ListCard extends StatelessWidget {
   final List<AttendanceData> attendanceList;
   final bool isLoading;
+  String? selectedShiff;
+  DateTime? selectedShiftStartTime;
+  DateTime? selectedShiftEndTime;
 
-  const ListCard({
+  ListCard({
     Key? key,
     required this.attendanceList,
+    required this.selectedShiff,
+    required this.selectedShiftStartTime,
+    required this.selectedShiftEndTime,
     required this.isLoading,
   }) : super(key: key);
 
@@ -205,27 +260,26 @@ class ListCard extends StatelessWidget {
           .map((attendance) {
         DateTime attendanceDateTime = DateTime.parse(attendance.attendanceDate);
 
-        DateTime expectedTime = DateTime(
-          attendanceDateTime.year,
-          attendanceDateTime.month,
-          attendanceDateTime.day,
-          9,
-          0,
-          0,
-        );
+        DateTime expectedStartTime = selectedShiftStartTime ??
+            DateTime
+                .now(); // Use DateTime.now() as a fallback value or choose a default value
 
-        bool isOnTimeOrEarly = !attendanceDateTime.isAfter(expectedTime);
+        DateTime expectedEndTime = selectedShiftEndTime ??
+            DateTime
+                .now(); // Use DateTime.now() as a fallback value or choose a default value
+
+        bool isOnTimeOrEarly = !attendanceDateTime.isAfter(expectedStartTime);
 
         Duration latenessDuration = isOnTimeOrEarly
             ? Duration()
-            : attendanceDateTime.difference(expectedTime);
+            : attendanceDateTime.difference(expectedStartTime);
 
         Color textColor = isOnTimeOrEarly ? Colors.green : Colors.red;
-
         return Container(
           padding: EdgeInsets.only(
             left: 10.w,
-            top: 7.h,
+            right: 10.w,
+            top: 10.h,
             bottom: 10.h,
           ),
           margin: EdgeInsets.only(
@@ -233,32 +287,26 @@ class ListCard extends StatelessWidget {
             right: 20.w,
             top: 20.h,
           ),
-          height: 110.h,
+          height: 115.h,
           decoration: BoxDecoration(
             borderRadius: BorderRadius.all(
               Radius.circular(15.r),
             ),
             border: Border.all(
               color: AppColor.primaryColor,
-              width: 1.0,
+              width: 1.0.w,
             ),
           ),
           child: Column(
             children: [
               Row(
-                mainAxisAlignment: MainAxisAlignment.start,
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
-                  ClipOval(
-                    child: Image.asset(
-                      'assets/images/b.jpeg',
-                      width: 60.w,
-                      height: 70.h,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
-                  SizedBox(
-                    width: 10,
+                  Image.file(
+                    File(attendance.attendancePic), // Use the actual file path
+                    width: 70.w,
+                    height: 90.h,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -272,11 +320,12 @@ class ListCard extends StatelessWidget {
                             fontWeight: FontWeight.bold),
                       ),
                       Text(
-                        'Status: ${attendance.status == 'In' ? 'Masuk' : attendance.status}',
+                        'Status: ${attendance.status == 'In' ? 'Masuk' : 'Pulang'}',
                         style: TextStyle(
-                            fontSize: 13.sp,
-                            color: Colors.black,
-                            fontWeight: FontWeight.bold),
+                          fontSize: 13.sp,
+                          color: Colors.black,
+                          fontWeight: FontWeight.bold,
+                        ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
                       ),
@@ -299,10 +348,13 @@ class ListCard extends StatelessWidget {
                           maxWidth: 210.w,
                         ),
                         child: Text(
-                          DateFormat('EEEE, d MMMM y', 'id_ID')
-                              .format(DateTime.now()),
+                          DateFormat('EEEE, d MMMM y', 'id_ID').format(
+                            DateTime.parse(attendance.attendanceDate),
+                          ),
                           style: TextStyle(
-                              fontSize: 14.sp, fontWeight: FontWeight.bold),
+                            fontSize: 14.sp,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                       Container(
@@ -312,35 +364,28 @@ class ListCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (isOnTimeOrEarly)
+                            if (attendance.status == 'In' && isOnTimeOrEarly)
                               Text(
                                 'Absen Masuk Tepat Waktu.',
                                 style: TextStyle(color: textColor),
                               ),
-                            if (!isOnTimeOrEarly)
+                            if (attendance.status == 'Out' && isOnTimeOrEarly)
+                              Text(
+                                'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
+                                style: TextStyle(color: Colors.brown),
+                              ),
+                            if (!isOnTimeOrEarly && attendance.status != 'Out')
                               Text(
                                 'Terlambat: ${latenessDuration.inHours} jam ${latenessDuration.inMinutes % 60} menit',
                                 style: TextStyle(color: textColor),
                               ),
-                            // if (attendance.status == 'In')
-                            //   Text(
-                            //     'Absen Masuk Tepat Waktu.',
-                            //     style: TextStyle(color: textColor),
-                            //   ),
-                            // if (attendance.status == 'Out')
-                            //   Text(
-                            //     'Absen Pulang ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}.',
-                            //     style: TextStyle(
-                            //       color: const Color.fromARGB(255, 27, 24, 23),
-                            //     ),
-                            //   ),
                           ],
                         ),
                       ),
                     ],
                   ),
                   SizedBox(
-                    width: 40.w,
+                    width: 20.w,
                   ),
                   InkWell(
                     onTap: () {
@@ -374,14 +419,11 @@ class ListCard extends StatelessWidget {
                                   height: 10.h,
                                 ),
                                 // Add the image below the black line
-                                Container(
-                                  alignment: Alignment.center,
-                                  child: Image.asset(
-                                    'assets/images/b.jpeg', // Replace with the actual image path
-                                    width: 90.w, // Adjust the width as needed
-                                    height: 90.h, // Adjust the height as needed
-                                    fit: BoxFit.cover,
-                                  ),
+                                Image.file(
+                                  File(attendance
+                                      .attendancePic), // Use the actual file path
+                                  width: 90.w,
+                                  height: 90.h,
                                 ),
                                 SizedBox(
                                   height: 10.h,
@@ -479,7 +521,7 @@ class ListCard extends StatelessWidget {
                                               ),
                                             ),
                                             Text(
-                                              '${attendance.status == 'In' ? 'Masuk' : attendance.status}',
+                                              '${attendance.status == 'In' ? 'Masuk' : attendance.status == 'Out' ? 'Pulang' : attendance.status}',
                                               style: TextStyle(
                                                 color: AppColor.primaryColor,
                                                 fontWeight: FontWeight.bold,
@@ -563,8 +605,10 @@ class ListCard extends StatelessWidget {
                                           ],
                                         ),
                                         Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.end,
+                                          // crossAxisAlignment:
+                                          //     CrossAxisAlignment.,
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.spaceBetween,
                                           children: [
                                             Text(
                                               "Keterangan",
@@ -576,29 +620,56 @@ class ListCard extends StatelessWidget {
                                             ),
                                             Container(
                                               constraints: BoxConstraints(
-                                                maxWidth: 90.w,
-                                              ),
-                                              child: isOnTimeOrEarly
-                                                  ? Text(
-                                                      'Tepat Waktu',
+                                                  maxWidth: 100.w),
+                                              child: Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.end,
+                                                children: [
+                                                  if (attendance.status ==
+                                                          'In' &&
+                                                      isOnTimeOrEarly)
+                                                    Text(
+                                                      'Absen Tepat Waktu.',
                                                       style: TextStyle(
                                                           color: textColor),
-                                                    )
-                                                  : Text(
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign: TextAlign.end,
+                                                    ),
+                                                  if (attendance.status ==
+                                                          'Out' &&
+                                                      isOnTimeOrEarly)
+                                                    Text(
+                                                      'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
+                                                      style: TextStyle(
+                                                          color: Colors.brown),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign: TextAlign.end,
+                                                    ),
+                                                  if (!isOnTimeOrEarly &&
+                                                      attendance.status !=
+                                                          'Out')
+                                                    Text(
                                                       'Terlambat: ${latenessDuration.inHours} jam ${latenessDuration.inMinutes % 60} menit',
                                                       style: TextStyle(
-                                                        color: textColor,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                      ),
+                                                          color: textColor),
+                                                      maxLines: 2,
+                                                      overflow:
+                                                          TextOverflow.ellipsis,
+                                                      textAlign: TextAlign.end,
                                                     ),
-                                            )
+                                                ],
+                                              ),
+                                            ),
                                           ],
                                         ),
                                       ],
                                     ),
                                     SizedBox(
-                                      height: 10,
+                                      height: 10.h,
                                     ),
                                     Row(
                                       crossAxisAlignment:
@@ -645,7 +716,7 @@ class ListCard extends StatelessWidget {
                                         ),
                                         Container(
                                           constraints: BoxConstraints(
-                                            maxWidth: 90.w,
+                                            maxWidth: 200.w,
                                           ),
                                           child: Column(
                                             crossAxisAlignment:
@@ -659,23 +730,16 @@ class ListCard extends StatelessWidget {
                                                   color: Colors.black,
                                                 ),
                                               ),
-                                              Container(
-                                                constraints: BoxConstraints(
-                                                  maxWidth: 110.w,
+                                              Text(
+                                                attendance.longitude,
+                                                style: TextStyle(
+                                                  fontSize: 15.sp,
+                                                  fontWeight: FontWeight.bold,
+                                                  color: AppColor.primaryColor,
                                                 ),
-                                                child: Text(
-                                                  attendance.longitude,
-                                                  style: TextStyle(
-                                                    fontSize: 15.sp,
-                                                    fontWeight: FontWeight.bold,
-                                                    color:
-                                                        AppColor.primaryColor,
-                                                  ),
-                                                  maxLines: 2,
-                                                  overflow:
-                                                      TextOverflow.ellipsis,
-                                                  textAlign: TextAlign.end,
-                                                ),
+                                                maxLines: 2,
+                                                overflow: TextOverflow.ellipsis,
+                                                textAlign: TextAlign.end,
                                               )
                                             ],
                                           ),
@@ -706,7 +770,7 @@ class ListCard extends StatelessWidget {
                       );
                     },
                     child: Container(
-                      margin: EdgeInsets.only(right: 12.w),
+                      margin: EdgeInsets.only(right: 5.w, left: 5.w),
                       child: Icon(
                         Icons.arrow_forward_ios_rounded,
                         size: 20.h,

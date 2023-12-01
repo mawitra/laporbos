@@ -1,30 +1,37 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, sized_box_for_whitespace, unused_import, prefer_final_fields, unused_field, non_constant_identifier_names, unused_local_variable
+// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print, unused_element, unused_import, unnecessary_null_comparison, unused_local_variable
 
+import 'dart:io';
+import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:geocoding/geocoding.dart';
-import 'package:geolocator/geolocator.dart';
+import 'package:google_maps_flutter/google_maps_flutter.dart';
+import 'package:google_maps_flutter_platform_interface/google_maps_flutter_platform_interface.dart'
+    as google_maps;
+import 'package:google_ml_kit/google_ml_kit.dart' as mlkit;
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
-
-import 'package:laporbos/screens/dashboard/hadir/daftar_absen.dart';
-import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
+import 'package:laporbos/model/attendance1.dart';
+import 'package:laporbos/model/user.dart';
+import 'package:laporbos/provider/provider.dart';
+import 'package:laporbos/service/attendanceIn.dart';
 import 'package:laporbos/service/attendanceOut.dart';
 import 'package:laporbos/service/userService.dart';
 import 'package:laporbos/utils/getGeolocation.dart';
 import 'package:laporbos/utils/scanner.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:laporbos/utils/storage.dart';
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
-import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
-import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
-import 'package:open_street_map_search_and_pick/open_street_map_search_and_pick.dart';
+import 'package:path_provider/path_provider.dart';
+import 'package:permission_handler/permission_handler.dart';
+import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import '../../../../widget/dashboard/hadir/side_bar.dart';
 
 class AbsenPulang extends StatefulWidget {
-  const AbsenPulang({super.key});
+  const AbsenPulang({Key? key});
 
   @override
   State<AbsenPulang> createState() => _AbsenPulangState();
@@ -32,18 +39,100 @@ class AbsenPulang extends StatefulWidget {
 
 class _AbsenPulangState extends State<AbsenPulang> {
   late SharedPreferences _prefs;
-
+  late GoogleMapController mapController;
+  late String locQR;
   int index_color = 2;
   String _result = '';
   final GeolocatorPlatform geolocator = GeolocatorPlatform.instance;
   Position? currentPosition;
   bool isScanned = false;
+  bool isLoading = true;
   bool isSubmitting = false;
+  late CameraController _cameraController;
+  late mlkit.FaceDetector faceDetector;
+  bool _isCameraInitialized = false;
+  bool _isBackPressed = false;
+  bool isImageCaptured = true;
+  String resultImagePath = '';
+  bool isPhotoTaken = false;
+  String? selectedShiff;
+  DateTime? selectedShiftStartTime;
+  DateTime? selectedShiftEndTime;
+
   @override
   void initState() {
     super.initState();
+    _requestCameraPermission();
+    faceDetector = mlkit.GoogleMlKit.vision.faceDetector();
     _getCurrentLocation();
-    _initializeSharedPreferences();
+    _loadUserDatas();
+  }
+
+  _loadUserDatas() async {
+    final String? authToken = await StorageUtil.getToken();
+    if (authToken != null) {
+      final UserModel? userData = await UserService.fetchUserData(authToken);
+
+      if (mounted) {
+        if (userData != null) {
+          final userProvider = context.read<UserProvider>();
+          userProvider.setUser(userData);
+
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String? savedShift = prefs.getString('selectedShift');
+          if (savedShift != null) {
+            setState(() {
+              selectedShiff = savedShift;
+              adjustSelectedShiftTime();
+            });
+          }
+        }
+      }
+    }
+  }
+
+  Future<void> _initializeCameraController() async {
+    final cameras = await availableCameras();
+    CameraDescription? selectedCamera;
+
+    for (final camera in cameras) {
+      if (camera.lensDirection == CameraLensDirection.front) {
+        selectedCamera = camera;
+        break;
+      }
+    }
+
+    if (selectedCamera == null && cameras.isNotEmpty) {
+      selectedCamera = cameras.first;
+    }
+
+    if (selectedCamera != null) {
+      _cameraController = CameraController(
+        selectedCamera,
+        ResolutionPreset.medium,
+      );
+
+      await _cameraController.initialize();
+    } else {
+      print('Error: Kamera tidak ditemukan');
+    }
+  }
+
+  Future<void> _requestCameraPermission() async {
+    if (await Permission.camera.request().isGranted) {
+      _initializeCameraController();
+    } else {
+      print("Camera permission is denied");
+    }
+  }
+
+  @override
+  void dispose() {
+    if (_cameraController != null) {
+      _cameraController.dispose();
+    }
+    faceDetector.close();
+    super.dispose();
   }
 
   Future<void> _getCurrentLocation() async {
@@ -51,6 +140,9 @@ class _AbsenPulangState extends State<AbsenPulang> {
       currentPosition = await geolocator.getCurrentPosition(
         desiredAccuracy: LocationAccuracy.best,
       );
+      setState(() {
+        currentPosition;
+      });
     } catch (e) {
       print("Error getting current location: $e");
     }
@@ -59,6 +151,30 @@ class _AbsenPulangState extends State<AbsenPulang> {
   Future<void> _openScanner(Position position) async {
     try {
       final authToken = await StorageUtil.getToken();
+      if (_cameraController != null) {
+        await _cameraController.dispose();
+      }
+
+      final cameras = await availableCameras();
+      CameraDescription? selectedCamera;
+      for (final camera in cameras) {
+        if (camera.lensDirection == CameraLensDirection.back) {
+          selectedCamera = camera;
+          break;
+        }
+      }
+
+      if (selectedCamera != null) {
+        _cameraController = CameraController(
+          selectedCamera,
+          ResolutionPreset.medium,
+        );
+        await _cameraController.initialize();
+      } else {
+        print('Error: Back camera not found');
+        return;
+      }
+
       final result = await Navigator.push(
         context,
         MaterialPageRoute(
@@ -67,6 +183,7 @@ class _AbsenPulangState extends State<AbsenPulang> {
           ),
         ),
       );
+
       final placemarks =
           await placemarkFromCoordinates(position.latitude, position.longitude);
       final place = placemarks[0];
@@ -74,9 +191,10 @@ class _AbsenPulangState extends State<AbsenPulang> {
       if (result != null && result is Barcode) {
         setState(() {
           isScanned = true;
-
+          locQR = result.code!;
+          isLoading = true;
           _result =
-              '${place.subLocality}, ${place.thoroughfare}, ${place.subAdministrativeArea}, ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, Negara ${place.country}';
+              '${place.subLocality}, ${place.thoroughfare}, ${place.subAdministrativeArea}, ${place.locality}, Provinsi ${place.administrativeArea}, Kode Pos ${place.postalCode}, ${place.country}';
         });
       }
     } catch (e) {
@@ -84,24 +202,133 @@ class _AbsenPulangState extends State<AbsenPulang> {
     }
   }
 
-  Future<void> _initializeSharedPreferences() async {
-    _prefs = await SharedPreferences.getInstance();
+  Future<void> _captureAndDetect() async {
+    if (_cameraController != null) {
+      try {
+        if (!_isCameraInitialized || _isBackPressed) {
+          await _initializeCameraController();
+          _isCameraInitialized = true;
+          _isBackPressed = false;
+        }
+
+        await _cameraController.setFlashMode(FlashMode.off);
+        final cameraScreen = Scaffold(
+          key: UniqueKey(),
+          body: WillPopScope(
+            onWillPop: () async {
+              _isBackPressed = true;
+              if (_isCameraInitialized) {
+                _cameraController.dispose();
+              }
+              Navigator.pop(context);
+              return true;
+            },
+            child: Stack(
+              children: [
+                Positioned.fill(
+                  child: CameraPreview(
+                    _cameraController,
+                  ),
+                ),
+                Center(
+                  child: Text(
+                    'Sedang menangkap foto dan mendeteksi wajah...',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.white,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        );
+
+        final cameraScreenRoute =
+            MaterialPageRoute(builder: (context) => cameraScreen);
+        Navigator.of(context).push(cameraScreenRoute);
+        bool faceDetected = false;
+        int detectedFaceCount = 0;
+
+        await Future.delayed(Duration(seconds: 1), () async {
+          while (!faceDetected && !_isBackPressed) {
+            final image = await _cameraController.takePicture();
+            final inputImage = mlkit.InputImage.fromFilePath(image.path);
+
+            final List<mlkit.Face> faces =
+                await faceDetector.processImage(inputImage);
+            detectedFaceCount += faces.length;
+
+            if (faces.isNotEmpty) {
+              faceDetected = true;
+
+              await _saveImageAsPng(image.path);
+              print('Foto berhasil disimpan.');
+
+              setState(() {
+                resultImagePath = image.path;
+                isImageCaptured = true;
+                isPhotoTaken = true;
+              });
+            }
+          }
+        });
+
+        if (!_isBackPressed) {
+          if (isScanned) {
+            Navigator.pop(context);
+          }
+          print('Jumlah wajah terdeteksi: $detectedFaceCount');
+          _isCameraInitialized = false;
+        }
+      } catch (e) {
+        print("Error capturing and detecting: $e");
+      } finally {
+        setState(() {
+          isLoading = false;
+          isImageCaptured = false;
+        });
+      }
+    } else {
+      print("Error: Camera controller not initialized");
+    }
   }
 
-  bool _getAttendanceStatus() {
-    // Mendapatkan tanggal saat ini dalam format yyyy-MM-dd
-    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    // Mengecek apakah ada data absensi pada tanggal tersebut
-    return _prefs.getBool(currentDate) ?? false;
-  }
-
-  Future<void> _setAttendanceStatus() async {
-    // Mendapatkan tanggal saat ini dalam format yyyy-MM-dd
-    String currentDate = DateFormat('yyyy-MM-dd').format(DateTime.now());
-
-    // Menyimpan status absensi pada tanggal tersebut
-    await _prefs.setBool(currentDate, true);
+  void adjustSelectedShiftTime() {
+    switch (selectedShiff) {
+      case "Shiff 1 jam 08:00 - 17:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 0, 0);
+        break;
+      case "Shiff 2 jam 08:30 - 17:30":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 8, 3, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+        break;
+      case "Shiff 3 jam 09:00 - 18:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 9, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 18, 0, 0);
+        break;
+      case "Shiff 4 jam 19:00 - 10:00":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 19, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        break;
+      case "Shiff 5 jam 10:00 - 10:08":
+        selectedShiftStartTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 0);
+        selectedShiftEndTime = DateTime(DateTime.now().year,
+            DateTime.now().month, DateTime.now().day, 10, 0, 8);
+        break;
+      // Add other cases as needed
+    }
   }
 
   Future<void> attendanceOutData() async {
@@ -110,34 +337,74 @@ class _AbsenPulangState extends State<AbsenPulang> {
     if (authToken != null) {
       try {
         user = await UserService.fetchUserData(authToken);
+        if (resultImagePath == null || resultImagePath.isEmpty) {
+          _showSnackbar('Ambil foto terlebih dahulu');
+        } else {
+          String custId = user?.custID ?? '';
+          String officerId = user?.officerID ?? '';
+          String officerName = user?.officerName ?? '';
+          String pict = resultImagePath;
+          AttendanceOutService attendanceService = AttendanceOutService();
+          SharedPreferences prefs = await SharedPreferences.getInstance();
+          String userId = user?.officerID ?? '';
+          String formattedDate =
+              "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
 
-        String custId = user?.custID ?? '';
-        String officerId = user?.officerID ?? '';
-        String officerName = user?.officerName ?? '';
-        String locQR = "000DMC22091";
-        String pict = "../IMGUP/Out.DMC.6282297371652.2022.11.02.10.47.49.jpg";
+          adjustSelectedShiftTime();
 
-        AttendanceOutService attendanceService = AttendanceOutService();
+          DateTime selectedShiftStartTime =
+              this.selectedShiftStartTime ?? DateTime.now();
+          DateTime selectedShiftEndTime =
+              this.selectedShiftEndTime ?? DateTime.now();
 
-        final AttendanceData fetchedAttendanceData =
-            await attendanceService.attendanceOut(
-                custId,
-                officerId,
-                officerName,
-                locQR,
-                currentPosition!.latitude,
-                currentPosition!.longitude,
-                pict,
-                authToken);
+          if (DateTime.now().isBefore(selectedShiftEndTime)) {
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content:
+                    Text('Absen tidak diizinkan sebelum waktu shift berakhir'),
+                duration: Duration(seconds: 2),
+              ),
+            );
+            return;
+          }
 
-        // await _setAttendanceStatus();
-        print(fetchedAttendanceData);
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Absen pulang berhasil'),
-            duration: Duration(seconds: 2),
-          ),
-        );
+          // if (prefs.containsKey('lastAttendanceDate_$userId')) {
+          //   // Mendapatkan tanggal terakhir absen
+          //   String lastAttendanceDate =
+          //       prefs.getString('lastAttendanceDate_$userId') ?? '';
+
+          //   // Memeriksa apakah sudah absen hari ini
+          //   if (lastAttendanceDate == formattedDate) {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(
+          //         content: Text('Anda sudah absen Pulang hari ini'),
+          //         duration: Duration(seconds: 2),
+          //       ),
+          //     );
+          //     return;
+          //   }
+          // }
+          final AttendanceData fetchedAttendanceData =
+              await attendanceService.attendanceOut(
+            custId,
+            officerId,
+            officerName,
+            locQR,
+            currentPosition!.latitude,
+            currentPosition!.longitude,
+            pict,
+            authToken,
+          );
+
+          prefs.setString('lastAttendanceDate_$userId', formattedDate);
+          prefs.setString('selectedShift', selectedShiff!);
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Absen pulang berhasil'),
+              duration: Duration(seconds: 2),
+            ),
+          );
+        }
       } catch (e) {
         print('Error fetching data: $e');
         ScaffoldMessenger.of(context).showSnackBar(
@@ -146,14 +413,44 @@ class _AbsenPulangState extends State<AbsenPulang> {
             duration: Duration(seconds: 2),
           ),
         );
+      } finally {
+        setState(() {
+          isSubmitting = false;
+        });
       }
     }
   }
 
+  Future<void> _saveImageAsPng(String imagePath) async {
+    try {
+      final fileBytes = await File(imagePath).readAsBytes();
+      final directory = await getApplicationDocumentsDirectory();
+      resultImagePath =
+          '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.png';
+
+      await File(resultImagePath).writeAsBytes(fileBytes);
+
+      print('Foto disimpan di: $resultImagePath');
+    } catch (e) {
+      print("Error saving image as PNG: $e");
+    }
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(message),
+        duration: Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
+    final userProvider = context.watch<UserProvider>();
+
     return Scaffold(
-      backgroundColor: Colors.deepOrange.shade50,
+      backgroundColor: AppColor.bekColor,
       appBar: AppBar(
         leading: Builder(
           builder: (BuildContext context) {
@@ -168,7 +465,7 @@ class _AbsenPulangState extends State<AbsenPulang> {
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
         title: Text(
-          "Hadir BossQue",
+          "Absen Pulang",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.sp,
@@ -182,25 +479,34 @@ class _AbsenPulangState extends State<AbsenPulang> {
           child: Column(
             children: [
               Container(
-                height: 320.h,
-                // margin: EdgeInsets.symmetric(horizontal: 20),
-
+                height: 350.h,
+                decoration: BoxDecoration(
+                  color: const Color.fromARGB(255, 255, 243, 241),
+                  borderRadius: BorderRadius.circular(2),
+                ),
                 child: Center(
                   child: isScanned
-                      ? OpenStreetMapSearchAndPick(
-                          center: LatLong(
-                            currentPosition!.latitude,
-                            currentPosition!.longitude,
+                      ? GoogleMap(
+                          initialCameraPosition: CameraPosition(
+                            target: LatLng(
+                              currentPosition?.latitude ?? 0.0,
+                              currentPosition?.longitude ?? 0.0,
+                            ),
+                            zoom: 18.0,
                           ),
-                          buttonColor: AppColor.primaryColor,
-                          locationPinIconColor: AppColor.primaryColor,
-                          locationPinText: 'My Location',
-                          locationPinTextStyle: TextStyle(
-                            fontSize: 13,
-                            fontWeight: FontWeight.bold,
-                            color: Colors.black,
-                          ),
-                          onPicked: (pickedData) {},
+                          onMapCreated: (controller) {
+                            mapController = controller;
+                          },
+                          markers: {
+                            google_maps.Marker(
+                              markerId: google_maps.MarkerId("0"),
+                              position: LatLng(
+                                currentPosition?.latitude ?? 0.0,
+                                currentPosition?.longitude ?? 0.0,
+                              ),
+                              icon: google_maps.BitmapDescriptor.defaultMarker,
+                            ),
+                          },
                         )
                       : Text(
                           'Scan QR terlebih dahulu',
@@ -214,134 +520,383 @@ class _AbsenPulangState extends State<AbsenPulang> {
               ),
               Expanded(
                 child: Container(
-                  color: AppColor.optionColor,
+                  color: const Color.fromARGB(255, 255, 243, 241),
                   child: Column(
                     children: [
-                      Column(
-                        children: [
-                          SizedBox(
-                            height: 5.h,
+                      Expanded(
+                        child: Container(
+                          margin: EdgeInsets.only(
+                            left: 8.w,
+                            right: 8.w,
+                            top: 6.h,
                           ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              Container(
-                                padding: EdgeInsets.only(top: 300.h),
-                                // margin: EdgeInsets.symmetric(horizontal: 10),
-                                width: 350.w,
-                                decoration: BoxDecoration(
-                                  color: Color.fromARGB(255, 255, 255, 255),
-                                  borderRadius: BorderRadius.only(
-                                    topLeft: Radius.circular(10.r),
-                                    topRight: Radius.circular(10.r),
-                                  ),
-                                ),
-                                child: Container(
-                                  // Second card
-                                  height: 70.h,
-                                  margin: EdgeInsets.only(
-                                    left: 20.h,
-                                    right: 20.h,
-                                    top: 10.w,
-                                  ),
-                                  decoration: BoxDecoration(
-                                    //  color: Colors.fromARGB(255, 255, 250, 250),
-                                    borderRadius: BorderRadius.circular(10),
-                                    border: Border.all(
-                                      color: Colors.orange,
-                                      width: 2.0,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.only(
+                              topLeft: Radius.circular(20.r),
+                              topRight: Radius.circular(20.r),
+                            ),
+                          ),
+                          child: Container(
+                            padding: EdgeInsets.only(
+                              left: 14.w,
+                              right: 14.w,
+                              top: 12.h,
+                            ),
+                            child: Column(
+                              children: [
+                                Expanded(
+                                  child: SingleChildScrollView(
+                                    child: Column(
+                                      children: [
+                                        Row(
+                                          mainAxisAlignment:
+                                              MainAxisAlignment.center,
+                                          children: [
+                                            Text(
+                                              'Absen Pulang nya jam ${DateFormat('HH:mm').format(selectedShiftEndTime ?? DateTime.now())}',
+                                              style: TextStyle(
+                                                color: const Color.fromARGB(
+                                                    255, 26, 18, 18),
+                                                fontSize: 13.sp,
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10.h,
+                                        ),
+                                        Column(
+                                          children: [
+                                            Container(
+                                              decoration: BoxDecoration(
+                                                color: Colors.orange.shade600,
+                                                borderRadius: BorderRadius.all(
+                                                  Radius.circular(8.r),
+                                                ),
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                horizontal: 15.w,
+                                                vertical: 12.h,
+                                              ),
+                                              child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment
+                                                        .spaceBetween,
+                                                children: [
+                                                  Text(
+                                                    "Pindai QR Code Absen",
+                                                    style: TextStyle(
+                                                      color: Colors.white,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 14.sp,
+                                                    ),
+                                                  ),
+                                                  if (isScanned)
+                                                    Icon(
+                                                      Icons.check_outlined,
+                                                      color: Colors.white,
+                                                      size: 20.sp,
+                                                    )
+                                                  else if (isLoading)
+                                                    Row(
+                                                      children: [
+                                                        Container(
+                                                          width: 18.sp,
+                                                          height: 18.sp,
+                                                          child:
+                                                              CircularProgressIndicator(
+                                                            valueColor:
+                                                                AlwaysStoppedAnimation<
+                                                                        Color>(
+                                                                    Colors
+                                                                        .white),
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                ],
+                                              ),
+                                            ),
+                                          ],
+                                        ),
+                                        SizedBox(
+                                          height: 10.h,
+                                        ),
+                                        Container(
+                                          decoration: BoxDecoration(
+                                            color: AppColor.optionColor,
+                                            borderRadius:
+                                                BorderRadius.circular(8),
+                                            border: Border.all(
+                                              color: Colors.orange,
+                                              width: 2.0.w,
+                                            ),
+                                          ),
+                                          padding: EdgeInsets.symmetric(
+                                            horizontal: 15.w,
+                                            vertical: 10.h,
+                                          ),
+                                          child: Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.spaceBetween,
+                                            children: [
+                                              Container(
+                                                constraints: BoxConstraints(
+                                                  maxWidth: 250.w,
+                                                ),
+                                                child: Column(
+                                                  crossAxisAlignment:
+                                                      CrossAxisAlignment.start,
+                                                  children: [
+                                                    Text(
+                                                      'Lokasi Tekini',
+                                                      style: TextStyle(
+                                                        fontSize: 14.sp,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                      ),
+                                                    ),
+                                                    SizedBox(
+                                                      height: 5.h,
+                                                    ),
+                                                    Text(
+                                                      isScanned
+                                                          ? _result
+                                                          : 'Scan QR terlebih dahulu',
+                                                      style: TextStyle(
+                                                        fontSize: 13.sp,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                              if (isScanned)
+                                                Icon(
+                                                  Icons.check_outlined,
+                                                  color: const Color.fromARGB(
+                                                      255, 0, 0, 0),
+                                                  size: 20.sp,
+                                                )
+                                            ],
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 12.h,
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            await _initializeCameraController();
+                                            if (_cameraController != null &&
+                                                _cameraController
+                                                    .value.isInitialized) {
+                                              if (isScanned) {
+                                                _captureAndDetect();
+                                              } else {
+                                                _showSnackbar(
+                                                    "Scan barcode terlebih dahulu");
+                                              }
+                                            } else {
+                                              print(
+                                                  "Error: Camera controller not initialized");
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            elevation: 0,
+                                            primary: const Color.fromARGB(
+                                                255, 255, 243, 241),
+                                            onPrimary: Colors.orange,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                              side: BorderSide(
+                                                color: Colors.orange,
+                                                width: 2.0.w,
+                                              ),
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              // horizontal: 5.w,
+                                              vertical: 15.h,
+                                            ),
+                                            child: Container(
+                                              // margin: EdgeInsets.only(right: 1),
+                                              child: Column(
+                                                children: [
+                                                  Row(
+                                                    mainAxisAlignment:
+                                                        MainAxisAlignment
+                                                            .spaceBetween,
+                                                    children: [
+                                                      Text(
+                                                        "Take Foto",
+                                                        style: TextStyle(
+                                                          color: Colors.black,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 14.sp,
+                                                        ),
+                                                      ),
+                                                      if (isPhotoTaken)
+                                                        Icon(
+                                                          Icons.check_outlined,
+                                                          color: const Color
+                                                              .fromARGB(
+                                                              255, 0, 0, 0),
+                                                          size: 25.sp,
+                                                        )
+                                                      else if (isImageCaptured)
+                                                        Row(
+                                                          children: [
+                                                            Container(
+                                                              width: 18.sp,
+                                                              height: 18.sp,
+                                                              child:
+                                                                  CircularProgressIndicator(
+                                                                valueColor:
+                                                                    AlwaysStoppedAnimation<
+                                                                            Color>(
+                                                                        Colors
+                                                                            .black),
+                                                              ),
+                                                            ),
+                                                          ],
+                                                        ),
+                                                    ],
+                                                  ),
+                                                  Visibility(
+                                                    visible: resultImagePath
+                                                        .isNotEmpty,
+                                                    child: Container(
+                                                      child: Row(
+                                                        mainAxisAlignment:
+                                                            MainAxisAlignment
+                                                                .start,
+                                                        children: [
+                                                          Column(
+                                                            children: [
+                                                              SizedBox(
+                                                                child:
+                                                                    Image.file(
+                                                                  File(
+                                                                      resultImagePath),
+                                                                  width: 70.w,
+                                                                  height: 90.h,
+                                                                ),
+                                                              ),
+                                                              Text(
+                                                                userProvider
+                                                                    .user!
+                                                                    .officerName,
+                                                                style:
+                                                                    TextStyle(
+                                                                  color: Colors
+                                                                      .black,
+                                                                  fontStyle:
+                                                                      FontStyle
+                                                                          .italic,
+                                                                ),
+                                                              ),
+                                                            ],
+                                                          ),
+                                                          SizedBox(
+                                                            width: 10.w,
+                                                          ),
+                                                          Container(
+                                                            constraints:
+                                                                BoxConstraints(
+                                                              maxWidth: 120.w,
+                                                            ),
+                                                            child: Column(
+                                                              children: [
+                                                                Text(
+                                                                  "Klik Foto untuk Mengulang gambar !",
+                                                                  style:
+                                                                      TextStyle(
+                                                                    fontStyle:
+                                                                        FontStyle
+                                                                            .italic,
+                                                                  ),
+                                                                ),
+                                                              ],
+                                                            ),
+                                                          )
+                                                        ],
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(
+                                          height: 12.h,
+                                        ),
+                                        ElevatedButton(
+                                          onPressed: () async {
+                                            if (!isSubmitting) {
+                                              if (isScanned) {
+                                                setState(() {
+                                                  isSubmitting = true;
+                                                });
+                                                await attendanceOutData();
+                                              } else {
+                                                _showSnackbar(
+                                                    "Scan barcode terlebih dahulu");
+                                              }
+                                            }
+                                          },
+                                          style: ElevatedButton.styleFrom(
+                                            elevation: 0,
+                                            backgroundColor:
+                                                Colors.orange.shade600,
+                                            shape: RoundedRectangleBorder(
+                                              borderRadius:
+                                                  BorderRadius.circular(8.r),
+                                            ),
+                                          ),
+                                          child: Padding(
+                                            padding: EdgeInsets.symmetric(
+                                              // horizontal: 21.w,
+                                              vertical: 15.h,
+                                            ),
+                                            child: Column(
+                                              children: [
+                                                Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: [
+                                                    Text(
+                                                      "Kirim Absen Pulang",
+                                                      style: TextStyle(
+                                                        color: Colors.white,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 14.sp,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ],
+                                            ),
+                                          ),
+                                        ),
+                                      ],
                                     ),
                                   ),
-                                  child: Row(
-                                    children: [
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.start,
-                                        mainAxisAlignment:
-                                            MainAxisAlignment.center,
-                                        children: [
-                                          Text(
-                                            'Rekap Data Kehadiran',
-                                            style: TextStyle(
-                                                fontSize: 16.sp,
-                                                fontWeight: FontWeight.bold),
-                                          ),
-                                          Text(
-                                            'Data Keseluruhan Kehadiran ',
-                                            style: TextStyle(fontSize: 14.sp),
-                                          ),
-                                        ],
-                                      ),
-                                    ],
-                                  ),
                                 ),
-                              ),
-                            ],
+                              ],
+                            ),
                           ),
-                        ],
+                        ),
                       )
                     ],
                   ),
                 ),
-              ),
-              // SizedBox(height: 10.h),
-              // Container(
-              //   margin: EdgeInsets.symmetric(horizontal: 20),
-              //   padding: EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-              //   decoration: BoxDecoration(
-              //     color: const Color.fromARGB(255, 255, 243, 241),
-              //     borderRadius: BorderRadius.circular(10),
-              //     border: Border.all(
-              //       color: Colors.orange,
-              //       width: 2.0.w,
-              //     ),
-              //   ),
-              //   child: SizedBox(
-              //     child: Row(
-              //       mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              //       children: [
-              //         Container(
-              //           constraints: BoxConstraints(
-              //             maxWidth: 280.w,
-              //           ),
-              //           child: Column(
-              //             crossAxisAlignment: CrossAxisAlignment.start,
-              //             mainAxisAlignment: MainAxisAlignment.center,
-              //             children: [
-              //               Text(
-              //                 'Alamat',
-              //                 style: TextStyle(
-              //                     fontSize: 15, fontWeight: FontWeight.bold),
-              //               ),
-              //               Text(
-              //                 isScanned ? _result : 'Scan QR terlebih dahulu',
-              //                 style: TextStyle(fontSize: 14),
-              //               ),
-              //             ],
-              //           ),
-              //         ),
-              //       ],
-              //     ),
-              //   ),
-              // // ),
-              // SizedBox(height: 10.h),
-              // Visibility(
-              //   visible: isScanned,
-              //   child: ElevatedButton(
-              //     onPressed: () async {
-              //       if (!isSubmitting) {
-              //         setState(() {
-              //           isSubmitting = true;
-              //         });
-              //         await attendanceOutData();
-              //       }
-              //     },
-              //     child: Text('Absen Pulang'),
-              //     style: ElevatedButton.styleFrom(
-              //       primary: AppColor.primaryColor,
-              //     ),
-              //   ),
-              // ),
+              )
             ],
           ),
         ),

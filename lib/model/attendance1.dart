@@ -31,6 +31,8 @@
 //     required this.lastUpdateBy,
 //   // });
 
+// ignore_for_file: unused_import
+
 //   factory AttendanceData.fromJson(Map<String, dynamic> json) {
 //     return AttendanceData(
 //       attendanceId: json['Attd_ID'] ?? "",
@@ -50,3 +52,12 @@
 //     );
 //   }
 // }
+import 'package:flutter/material.dart';
+
+class Shift {
+  final String name;
+  final DateTime startTime;
+  final DateTime endTime;
+
+  Shift({required this.name, required this.startTime, required this.endTime});
+}

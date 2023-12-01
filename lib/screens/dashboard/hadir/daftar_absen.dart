@@ -10,7 +10,7 @@ import 'package:laporbos/screens/dashboard/hadir/daftarAbsensi/absensiHarini.dar
 import 'package:laporbos/screens/dashboard/hadir/daftarAbsensi/dataKehadiran.dart';
 
 import 'package:laporbos/screens/dashboard/hadir/hadirbos.dart';
-import 'package:laporbos/screens/dashboard/superAdmin/home.dart';
+
 import 'package:laporbos/widget/dashboard/bottomnavigation.dart';
 import 'package:laporbos/widget/dashboard/hadir/drawer_item.dart';
 import 'package:laporbos/widget/dashboard/hadir/side_bar.dart';
@@ -29,7 +29,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: AppColor.borderColor,
+      backgroundColor: AppColor.bekColor,
       appBar: AppBar(
         leading: Builder(
           builder: (BuildContext context) {
@@ -44,7 +44,7 @@ class _DaftarAbsenState extends State<DaftarAbsen> {
         backgroundColor: AppColor.primaryColor,
         elevation: 0,
         title: Text(
-          "Hadir BossQue",
+          "Daftar Absensi",
           style: TextStyle(
             color: Colors.white,
             fontSize: 20.sp,
