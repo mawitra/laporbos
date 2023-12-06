@@ -1,5 +1,6 @@
-// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print, unused_element, unused_import, unnecessary_null_comparison, unused_local_variable
+// ignore_for_file: unused_import, unused_field, non_constant_identifier_names, unnecessary_null_comparison, unused_local_variable, use_key_in_widget_constructors, avoid_print, use_build_context_synchronously, prefer_const_constructors, avoid_unnecessary_containers, sized_box_for_whitespace, prefer_const_literals_to_create_immutables
 
+import 'dart:convert';
 import 'dart:io';
 import 'package:camera/camera.dart';
 import 'package:flutter/material.dart';
@@ -12,7 +13,6 @@ import 'package:google_ml_kit/google_ml_kit.dart' as mlkit;
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
-import 'package:laporbos/model/attendance1.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/provider/provider.dart';
 import 'package:laporbos/service/attendanceIn.dart';
@@ -27,6 +27,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import 'package:qr_code_scanner/qr_code_scanner.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
 
 import '../../../../widget/dashboard/hadir/side_bar.dart';
 
@@ -62,10 +63,11 @@ class _AbsenMasukState extends State<AbsenMasuk> {
   @override
   void initState() {
     super.initState();
-    _requestCameraPermission();
+    _requestPermissions();
     faceDetector = mlkit.GoogleMlKit.vision.faceDetector();
     _getCurrentLocation();
     _loadUserDatas();
+    _initializeCameraController();
   }
 
   _loadUserDatas() async {
@@ -94,6 +96,14 @@ class _AbsenMasukState extends State<AbsenMasuk> {
   }
 
   Future<void> _initializeCameraController() async {
+    // Request camera permission
+    bool cameraPermission = await Permission.camera.request().isGranted;
+
+    if (!cameraPermission) {
+      print('Camera permission denied');
+      return;
+    }
+
     final cameras = await availableCameras();
     CameraDescription? selectedCamera;
 
@@ -120,18 +130,26 @@ class _AbsenMasukState extends State<AbsenMasuk> {
     }
   }
 
-  Future<void> _requestCameraPermission() async {
-    if (await Permission.camera.request().isGranted) {
-      // Permission is granted
-      _initializeCameraController();
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.location,
+      Permission.microphone,
+    ].request();
+
+    if (statuses[Permission.camera] != PermissionStatus.granted ||
+        statuses[Permission.location] != PermissionStatus.granted ||
+        statuses[Permission.microphone] != PermissionStatus.granted) {
+      print("One or more permissions are not granted");
     } else {
-      print("Camera permission is denied");
+      await _initializeCameraController(); // Wait for camera initialization
+      _getCurrentLocation();
     }
   }
 
   @override
   void dispose() {
-    if (_cameraController != null) {
+    if (_cameraController != null && _cameraController.value.isInitialized) {
       _cameraController.dispose();
     }
     faceDetector.close();
@@ -218,16 +236,14 @@ class _AbsenMasukState extends State<AbsenMasuk> {
           _isCameraInitialized = true;
           _isBackPressed = false;
         }
-
+        await _initializeCameraController();
         await _cameraController.setFlashMode(FlashMode.off);
         final cameraScreen = Scaffold(
           key: UniqueKey(),
           body: WillPopScope(
             onWillPop: () async {
               _isBackPressed = true;
-              if (_isCameraInitialized) {
-                _cameraController.dispose();
-              }
+
               Navigator.pop(context);
               return true;
             },
@@ -273,6 +289,7 @@ class _AbsenMasukState extends State<AbsenMasuk> {
             if (faces.isNotEmpty) {
               faceDetected = true;
 
+              print('Detected ${faces.length} face(s)');
               await _saveImageAsPng(image.path);
               print('Foto berhasil disimpan.');
 
@@ -281,6 +298,8 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                 isImageCaptured = true;
                 isPhotoTaken = true;
               });
+            } else {
+              print('No faces detected');
             }
           }
         });
@@ -365,34 +384,33 @@ class _AbsenMasukState extends State<AbsenMasuk> {
               "${DateTime.now().year}-${DateTime.now().month}-${DateTime.now().day}";
 
           adjustSelectedShiftTime();
-
-          // Mendapatkan waktu mulai shift yang dipilih
+          print(pict);
           DateTime selectedShiftStartTime =
               this.selectedShiftStartTime ?? DateTime.now();
 
           // Membandingkan waktu sekarang dengan waktu mulai shift
-          if (DateTime.now().isBefore(selectedShiftStartTime)) {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(
-                content:
-                    Text('Absen tidak diizinkan sebelum waktu shift dimulai'),
-                duration: Duration(seconds: 2),
-              ),
-            );
-            return;
-          }
+          // if (DateTime.now().isBefore(selectedShiftStartTime)) {
+          //   ScaffoldMessenger.of(context).showSnackBar(
+          //     SnackBar(
+          //       content:
+          //           Text('Absen tidak diizinkan sebelum waktu shift dimulai'),
+          //       duration: Duration(seconds: 2),
+          //     ),
+          //   );
+          //   return;
+          // }
 
-          if (prefs.containsKey('lastAttendanceDate_$userId')) {
-            if (await StorageUtil.hasUserSubmittedAttendanceToday(userId)) {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(
-                  content: Text('Anda sudah absen hari ini'),
-                  duration: Duration(seconds: 2),
-                ),
-              );
-              return;
-            }
-          }
+          // if (prefs.containsKey('lastAttendanceDate_$userId')) {
+          //   if (await StorageUtil.hasUserSubmittedAttendanceToday(userId)) {
+          //     ScaffoldMessenger.of(context).showSnackBar(
+          //       SnackBar(
+          //         content: Text('Anda sudah absen hari ini'),
+          //         duration: Duration(seconds: 2),
+          //       ),
+          //     );
+          //     return;
+          //   }
+          // }
           final AttendanceData fetchedAttendanceData =
               await attendanceService.attendanceIn(
             custId,
@@ -430,18 +448,67 @@ class _AbsenMasukState extends State<AbsenMasuk> {
     }
   }
 
+  // Future<void> _saveImageToCloudinary(String imagePath) async {
+  //   try {
+  //     final fileBytes = await File(imagePath).readAsBytes();
+  //     final base64Image = base64Encode(fileBytes);
+
+  //     final cloudinaryUrl =
+  //         'https://api.cloudinary.com/v1_1/dq4mjbdd5/image/upload';
+  //     final cloudinaryApiKey = '611861861156697';
+  //     final cloudinaryApiSecret = '2iBu4JziSwis5po63rN_0TK7mMY';
+
+  //     final response = await http.post(
+  //       Uri.parse(cloudinaryUrl),
+  //       body: {
+  //         'file': 'data:image/png;base64,$base64Image',
+  //         'upload_preset':
+  //             'vhwe0dxk', // Create an unsigned upload preset in Cloudinary
+  //         'api_key': cloudinaryApiKey,
+  //         'timestamp': DateTime.now().millisecondsSinceEpoch.toString(),
+  //         // 'signature': generateCloudinarySignature(cloudinaryApiSecret),
+  //       },
+  //     );
+
+  //     if (response.statusCode == 200) {
+  //       final cloudinaryResponse = json.decode(response.body);
+  //       final cloudinaryImageUrl = cloudinaryResponse['secure_url'];
+
+  //       print('Image uploaded to Cloudinary: $cloudinaryImageUrl');
+  //     } else {
+  //       print(
+  //           'Failed to upload image to Cloudinary. Status code: ${response.statusCode}');
+  //     }
+  //   } catch (e) {
+  //     print("Error saving image to Cloudinary: $e");
+  //   }
+  // }
+
   Future<void> _saveImageAsPng(String imagePath) async {
     try {
       final fileBytes = await File(imagePath).readAsBytes();
-      final directory = await getApplicationDocumentsDirectory();
-      resultImagePath =
-          '${directory.path}/${DateTime.now().millisecondsSinceEpoch}.png';
+      const serverUrl = 'http://192.168.18.158/hadirbossque_mada/ui/';
 
-      await File(resultImagePath).writeAsBytes(fileBytes);
+      var request = http.MultipartRequest('POST', Uri.parse(serverUrl));
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'file',
+          fileBytes,
+          filename: '${DateTime.now().millisecondsSinceEpoch}.png',
+        ),
+      );
 
-      print('Foto disimpan di: $resultImagePath');
+      var streamedResponse = await request.send();
+      var response = await http.Response.fromStream(streamedResponse);
+
+      if (response.statusCode == 200) {
+        print('Gambar berhasil diunggah.');
+      } else {
+        print('Gagal mengunggah gambar. Kode status: ${response.statusCode}');
+        print(response.body);
+      }
     } catch (e) {
-      print("Error saving image as PNG: $e");
+      print("Error menyimpan gambar sebagai PNG: $e");
     }
   }
 
@@ -457,7 +524,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
   @override
   Widget build(BuildContext context) {
     final userProvider = context.watch<UserProvider>();
-
     return Scaffold(
       backgroundColor: AppColor.bekColor,
       appBar: AppBar(
@@ -583,9 +649,6 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                                         ),
                                         Column(
                                           children: [
-                                            // SizedBox(
-                                            //   height: 12.h,
-                                            // ),
                                             Container(
                                               decoration: BoxDecoration(
                                                 color: Colors.orange.shade600,
@@ -832,7 +895,7 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                                                 _cameraController
                                                     .value.isInitialized) {
                                               if (isScanned) {
-                                                _captureAndDetect();
+                                                await _captureAndDetect();
                                               } else {
                                                 _showSnackbar(
                                                     "Scan barcode terlebih dahulu");
@@ -843,10 +906,11 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.orange,
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 255, 243, 241),
                                             elevation: 0,
-                                            primary: const Color.fromARGB(
-                                                255, 255, 243, 241),
-                                            onPrimary: Colors.orange,
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.r),
@@ -885,7 +949,7 @@ class _AbsenMasukState extends State<AbsenMasuk> {
                                                           color: const Color
                                                               .fromARGB(
                                                               255, 0, 0, 0),
-                                                          size: 25.sp,
+                                                          size: 20.sp,
                                                         )
                                                       else if (isImageCaptured)
                                                         Row(
@@ -1043,17 +1107,44 @@ class _AbsenMasukState extends State<AbsenMasuk> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.orange,
-        child: Icon(
-          Icons.center_focus_strong,
-        ),
+        child: Icon(Icons.center_focus_strong),
         onPressed: () async {
+          await _initializeCameraController();
+
+          if (_cameraController != null &&
+              _cameraController.value.isInitialized) {
+            // await _captureAndDetect();
+          } else {
+            print("Error: Camera controller not initialized");
+          }
+          // Rest of your code for FloatingActionButton onPressed...
+          final snackBar = SnackBar(
+            content: Row(
+              children: [
+                Text('Harap Tunggu...'),
+              ],
+            ),
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
           Position position;
           try {
             position = await GeolocationUtils.getGeoLocationPosition();
           } catch (e) {
             print("Error getting location: $e");
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Gagal akses pemindaian.'),
+                backgroundColor: Colors.red,
+              ),
+            );
             return;
           }
+
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
           await _openScanner(position);
         },
       ),

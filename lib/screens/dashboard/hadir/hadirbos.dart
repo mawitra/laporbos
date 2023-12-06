@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables, unused_import, non_constant_identifier_names, prefer_const_constructors_in_immutables, prefer_const_declarations, unnecessary_null_comparison, avoid_print, avoid_unnecessary_containers
+// ignore_for_file: prefer_const_constructors, prefer_const_literals_to_create_immutables, prefer_typing_uninitialized_variables, unused_import, non_constant_identifier_names, prefer_const_constructors_in_immutables, prefer_const_declarations, unnecessary_null_comparison, avoid_print, avoid_unnecessary_containers, use_build_context_synchronously, unused_local_variable
 
 import 'dart:async';
 import 'dart:convert';
@@ -8,7 +8,6 @@ import 'package:flutter_screenutil/flutter_screenutil.dart';
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
-import 'package:laporbos/model/attendance1.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/screens/auth/login.dart';
 import 'package:laporbos/service/attendance.dart';
@@ -61,9 +60,9 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
         break;
       case "Shiff 2 jam 08:30 - 17:30":
         selectedShiftStartTime = DateTime(DateTime.now().year,
-            DateTime.now().month, DateTime.now().day, 8, 3, 0);
+            DateTime.now().month, DateTime.now().day, 8, 30, 0);
         selectedShiftEndTime = DateTime(DateTime.now().year,
-            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+            DateTime.now().month, DateTime.now().day, 17, 30, 0);
         break;
       case "Shiff 3 jam 09:00 - 18:00":
         selectedShiftStartTime = DateTime(DateTime.now().year,
@@ -255,14 +254,13 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                 DateTime.parse(attendance.attendanceDate);
                             adjustSelectedShiftTime();
 
-                            DateTime expectedStartTime = selectedShiftStartTime ??
-                                DateTime
-                                    .now(); // Use DateTime.now() as a fallback value or choose a default value
+                            DateTime expectedStartTime =
+                                selectedShiftStartTime ?? DateTime.now();
 
-                            DateTime expectedEndTime = selectedShiftEndTime ??
-                                DateTime
-                                    .now(); // Use DateTime.now() as a fallback value or choose a default value
-
+                            DateTime expectedEndTime =
+                                selectedShiftEndTime ?? DateTime.now();
+                            bool isOnTimeOrEarlys =
+                                !attendanceDateTime.isBefore(expectedStartTime);
                             bool isOnTimeOrEarly =
                                 !attendanceDateTime.isAfter(expectedStartTime);
 
@@ -287,43 +285,55 @@ class _HomeHadirBosState extends State<HomeHadirBos> {
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
+                                      // Adjust the width as needed
                                       Image.file(
                                         File(attendance.attendancePic),
                                         width: 60.w,
                                         height: 70.h,
                                       ),
+                                      SizedBox(width: 10.w),
                                       Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: [
-                                            Text(attendance.officerName),
-                                            Text(
-                                                'Tanggal: ${attendance.attendanceDate}'),
-                                            Text(
-                                                'Status: ${attendance.status}'),
-                                            if (attendance.status == 'In' &&
-                                                isOnTimeOrEarly)
-                                              Text(
-                                                'Absen Masuk Tepat Waktu.',
-                                                style:
-                                                    TextStyle(color: textColor),
+                                        child: Container(
+                                          child: Row(
+                                            children: [
+                                              Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  Text(attendance.officerName),
+                                                  Text(
+                                                      'Tanggal: ${attendance.attendanceDate}'),
+                                                  // Text('jam: ${selectedShiff}'),
+                                                  Text(
+                                                      'Status: ${attendance.status}'),
+                                                  if (attendance.status ==
+                                                          'In' &&
+                                                      !isOnTimeOrEarlys)
+                                                    Text(
+                                                      'Absen Masuk jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
+                                                      style: TextStyle(
+                                                          color: textColor),
+                                                    ),
+                                                  if (attendance.status ==
+                                                          'Out' &&
+                                                      !isOnTimeOrEarly)
+                                                    Text(
+                                                      'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
+                                                      style: TextStyle(
+                                                          color: Colors.brown),
+                                                    ),
+                                                  if (!isOnTimeOrEarly &&
+                                                      attendance.status !=
+                                                          'Out')
+                                                    Text(
+                                                      'Terlambat: ${latenessDuration.inHours} jam ${latenessDuration.inMinutes % 60} menit',
+                                                      style: TextStyle(
+                                                          color: textColor),
+                                                    ),
+                                                ],
                                               ),
-                                            if (attendance.status == 'Out' &&
-                                                isOnTimeOrEarly)
-                                              Text(
-                                                'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
-                                                style: TextStyle(
-                                                    color: Colors.brown),
-                                              ),
-                                            if (!isOnTimeOrEarly &&
-                                                attendance.status != 'Out')
-                                              Text(
-                                                'Terlambat: ${latenessDuration.inHours} jam ${latenessDuration.inMinutes % 60} menit',
-                                                style:
-                                                    TextStyle(color: textColor),
-                                              ),
-                                          ],
+                                            ],
+                                          ),
                                         ),
                                       ),
                                     ],

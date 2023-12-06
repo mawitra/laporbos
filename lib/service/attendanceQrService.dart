@@ -1,4 +1,6 @@
 // attendance_qr_handler.dart
+// ignore_for_file: file_names
+
 import 'package:laporbos/config.dart';
 import 'package:laporbos/model/attendanceqr.dart';
 import 'dart:convert';

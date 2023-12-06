@@ -1,4 +1,4 @@
-// ignore_for_file: non_constant_identifier_names, prefer_const_constructors
+// ignore_for_file: non_constant_identifier_names, prefer_const_constructors, no_logic_in_create_state
 
 import 'package:flutter/material.dart';
 import 'package:laporbos/color.dart';
@@ -120,7 +120,7 @@ class _BottomState extends State<Bottom> {
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     Icon(
-                      Icons.drive_folder_upload,
+                      Icons.unarchive_outlined,
                       size: 30,
                       color: index_color == 2
                           ? AppColor.primaryColor

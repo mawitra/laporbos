@@ -126,24 +126,24 @@ class _LoginState extends State<Login> {
                                       validasi:
                                           "* Kata sandi harus dari 8 - 16 karakter",
                                     ),
-                                    SizedBox(
-                                      height: 20.h,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.start,
-                                      children: [
-                                        InkWell(
-                                          onTap: () {},
-                                          child: Text(
-                                            "Lupa Password",
-                                            style: TextStyle(
-                                              color: AppColor.textColor,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    ),
+                                    // SizedBox(
+                                    //   height: 20.h,
+                                    // ),
+                                    // Row(
+                                    //   mainAxisAlignment:
+                                    //       MainAxisAlignment.start,
+                                    //   children: [
+                                    //     InkWell(
+                                    //       onTap: () {},
+                                    //       child: Text(
+                                    //         "Lupa Password",
+                                    //         style: TextStyle(
+                                    //           color: AppColor.textColor,
+                                    //         ),
+                                    //       ),
+                                    //     )
+                                    //   ],
+                                    // ),
                                     SizedBox(
                                       height: 20.h,
                                     ),
@@ -178,52 +178,6 @@ class _LoginState extends State<Login> {
                                         ),
                                       ),
                                     ),
-                                    SizedBox(
-                                      height: 20.h,
-                                    ),
-                                    SizedBox(
-                                      child: Text(
-                                        "Or Login With",
-                                        style: TextStyle(
-                                          color: AppColor.textColor,
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(
-                                      height: 20.h,
-                                    ),
-                                    Row(
-                                      mainAxisAlignment:
-                                          MainAxisAlignment.center,
-                                      children: [
-                                        Text(
-                                          "Belum Punya Akun?",
-                                          style: TextStyle(
-                                            color: AppColor.textColor,
-                                          ),
-                                        ),
-                                        SizedBox(
-                                          width: 4.w,
-                                        ),
-                                        InkWell(
-                                          onTap: () {
-                                            Navigator.of(context).push(
-                                              MaterialPageRoute(
-                                                builder: (context) {
-                                                  return Register(); // Ganti dengan halaman Register yang sesuai
-                                                },
-                                              ),
-                                            );
-                                          },
-                                          child: Text(
-                                            "Daftar Sekarang",
-                                            style: TextStyle(
-                                              color: AppColor.primaryColor,
-                                            ),
-                                          ),
-                                        )
-                                      ],
-                                    )
                                   ],
                                 ),
                               ),

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, avoid_print
+// ignore_for_file: prefer_const_constructors, avoid_print, use_rethrow_when_possible
 
 import 'package:laporbos/config.dart';
 import 'package:laporbos/model/attendance.dart';

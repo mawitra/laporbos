@@ -1,5 +1,7 @@
 // location_service.dart
 
+// ignore_for_file: use_rethrow_when_possible, avoid_print, file_names
+
 import 'package:geolocator/geolocator.dart';
 
 class GeolocationUtils {

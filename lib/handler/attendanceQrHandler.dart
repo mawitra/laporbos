@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, unused_import, unused_local_variable, non_constant_identifier_names, unnecessary_null_comparison
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, unused_import, unused_local_variable, non_constant_identifier_names, unnecessary_null_comparison, file_names
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:laporbos/model/attendanceqr.dart';

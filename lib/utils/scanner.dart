@@ -1,4 +1,4 @@
-// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import, unnecessary_null_comparison, use_build_context_synchronously
+// ignore_for_file: unnecessary_this, prefer_const_constructors, prefer_final_fields, unused_import, unnecessary_null_comparison, use_build_context_synchronously, prefer_const_constructors_in_immutables, no_logic_in_create_state, unnecessary_import
 
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';

@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print, unused_element, unused_import, unnecessary_null_comparison, unused_local_variable
+// ignore_for_file: prefer_const_constructors, unused_field, non_constant_identifier_names, use_build_context_synchronously, prefer_const_literals_to_create_immutables, avoid_print, unused_element, unused_import, unnecessary_null_comparison, unused_local_variable, use_key_in_widget_constructors, avoid_unnecessary_containers, sized_box_for_whitespace
 
 import 'dart:io';
 import 'package:camera/camera.dart';
@@ -12,7 +12,6 @@ import 'package:google_ml_kit/google_ml_kit.dart' as mlkit;
 import 'package:intl/intl.dart';
 import 'package:laporbos/color.dart';
 import 'package:laporbos/model/attendance.dart';
-import 'package:laporbos/model/attendance1.dart';
 import 'package:laporbos/model/user.dart';
 import 'package:laporbos/provider/provider.dart';
 import 'package:laporbos/service/attendanceIn.dart';
@@ -56,13 +55,14 @@ class _AbsenPulangState extends State<AbsenPulang> {
   String resultImagePath = '';
   bool isPhotoTaken = false;
   String? selectedShiff;
+  AttendanceData? lastattendance;
   DateTime? selectedShiftStartTime;
   DateTime? selectedShiftEndTime;
 
   @override
   void initState() {
     super.initState();
-    _requestCameraPermission();
+    _requestPermissions();
     faceDetector = mlkit.GoogleMlKit.vision.faceDetector();
     _getCurrentLocation();
     _loadUserDatas();
@@ -92,6 +92,14 @@ class _AbsenPulangState extends State<AbsenPulang> {
   }
 
   Future<void> _initializeCameraController() async {
+    // Request camera permission
+    bool cameraPermission = await Permission.camera.request().isGranted;
+
+    if (!cameraPermission) {
+      print('Camera permission denied');
+      return;
+    }
+
     final cameras = await availableCameras();
     CameraDescription? selectedCamera;
 
@@ -118,17 +126,26 @@ class _AbsenPulangState extends State<AbsenPulang> {
     }
   }
 
-  Future<void> _requestCameraPermission() async {
-    if (await Permission.camera.request().isGranted) {
-      _initializeCameraController();
+  Future<void> _requestPermissions() async {
+    Map<Permission, PermissionStatus> statuses = await [
+      Permission.camera,
+      Permission.location,
+      Permission.microphone,
+    ].request();
+
+    if (statuses[Permission.camera] != PermissionStatus.granted ||
+        statuses[Permission.location] != PermissionStatus.granted ||
+        statuses[Permission.microphone] != PermissionStatus.granted) {
+      print("One or more permissions are not granted");
     } else {
-      print("Camera permission is denied");
+      await _initializeCameraController(); // Wait for camera initialization
+      _getCurrentLocation();
     }
   }
 
   @override
   void dispose() {
-    if (_cameraController != null) {
+    if (_cameraController != null && _cameraController.value.isInitialized) {
       _cameraController.dispose();
     }
     faceDetector.close();
@@ -307,7 +324,7 @@ class _AbsenPulangState extends State<AbsenPulang> {
         selectedShiftStartTime = DateTime(DateTime.now().year,
             DateTime.now().month, DateTime.now().day, 8, 3, 0);
         selectedShiftEndTime = DateTime(DateTime.now().year,
-            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+            DateTime.now().month, DateTime.now().day, 17, 30, 0);
         break;
       case "Shiff 3 jam 09:00 - 18:00":
         selectedShiftStartTime = DateTime(DateTime.now().year,
@@ -327,7 +344,6 @@ class _AbsenPulangState extends State<AbsenPulang> {
         selectedShiftEndTime = DateTime(DateTime.now().year,
             DateTime.now().month, DateTime.now().day, 10, 0, 8);
         break;
-      // Add other cases as needed
     }
   }
 
@@ -367,23 +383,19 @@ class _AbsenPulangState extends State<AbsenPulang> {
             );
             return;
           }
-
-          // if (prefs.containsKey('lastAttendanceDate_$userId')) {
-          //   // Mendapatkan tanggal terakhir absen
-          //   String lastAttendanceDate =
-          //       prefs.getString('lastAttendanceDate_$userId') ?? '';
-
-          //   // Memeriksa apakah sudah absen hari ini
-          //   if (lastAttendanceDate == formattedDate) {
-          //     ScaffoldMessenger.of(context).showSnackBar(
-          //       SnackBar(
-          //         content: Text('Anda sudah absen Pulang hari ini'),
-          //         duration: Duration(seconds: 2),
-          //       ),
-          //     );
-          //     return;
-          //   }
-          // }
+          if (prefs.containsKey('lastAttendanceStatus_$userId')) {
+            String lastAttendanceStatus =
+                prefs.getString('lastAttendanceStatus_$userId') ?? "";
+            if (lastAttendanceStatus == "Out") {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text('Anda sudah absen pulang hari ini'),
+                  duration: Duration(seconds: 2),
+                ),
+              );
+              return;
+            }
+          }
           final AttendanceData fetchedAttendanceData =
               await attendanceService.attendanceOut(
             custId,
@@ -397,6 +409,7 @@ class _AbsenPulangState extends State<AbsenPulang> {
           );
 
           prefs.setString('lastAttendanceDate_$userId', formattedDate);
+          prefs.setString('lastAttendanceStatus_$userId', "Out");
           prefs.setString('selectedShift', selectedShiff!);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(
@@ -553,14 +566,16 @@ class _AbsenPulangState extends State<AbsenPulang> {
                                           mainAxisAlignment:
                                               MainAxisAlignment.center,
                                           children: [
-                                            Text(
-                                              'Absen Pulang nya jam ${DateFormat('HH:mm').format(selectedShiftEndTime ?? DateTime.now())}',
-                                              style: TextStyle(
-                                                color: const Color.fromARGB(
-                                                    255, 26, 18, 18),
-                                                fontSize: 13.sp,
+                                            if (isScanned)
+                                              Text(
+                                                'Absen Pulang jam ${DateFormat('HH:mm').format(selectedShiftEndTime ?? DateTime.now())}',
+                                                style: TextStyle(
+                                                  color: const Color.fromARGB(
+                                                      255, 26, 18, 18),
+                                                  fontSize:
+                                                      13.0, // Use the correct font size or the extension method you have
+                                                ),
                                               ),
-                                            )
                                           ],
                                         ),
                                         SizedBox(
@@ -703,10 +718,11 @@ class _AbsenPulangState extends State<AbsenPulang> {
                                             }
                                           },
                                           style: ElevatedButton.styleFrom(
+                                            foregroundColor: Colors.orange,
                                             elevation: 0,
-                                            primary: const Color.fromARGB(
-                                                255, 255, 243, 241),
-                                            onPrimary: Colors.orange,
+                                            backgroundColor:
+                                                const Color.fromARGB(
+                                                    255, 255, 243, 241),
                                             shape: RoundedRectangleBorder(
                                               borderRadius:
                                                   BorderRadius.circular(8.r),
@@ -903,17 +919,41 @@ class _AbsenPulangState extends State<AbsenPulang> {
       ),
       floatingActionButton: FloatingActionButton(
         backgroundColor: Colors.orange,
-        child: Icon(
-          Icons.center_focus_strong,
-        ),
+        child: Icon(Icons.center_focus_strong),
         onPressed: () async {
+          // Tampilkan Snackbar "Harap tunggu sebentar" selama proses loading
+          final snackBar = SnackBar(
+            content: Row(
+              children: [
+                // CircularProgressIndicator(),
+                // // SizedBox(width: 16),
+                Text('Harap Tunggu...'),
+              ],
+            ),
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
+          );
+
+          ScaffoldMessenger.of(context).showSnackBar(snackBar);
+
           Position position;
           try {
             position = await GeolocationUtils.getGeoLocationPosition();
           } catch (e) {
             print("Error getting location: $e");
+            // Tutup Snackbar jika terjadi kesalahan saat meminta izin lokasi
+            ScaffoldMessenger.of(context).hideCurrentSnackBar();
+            ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('Gagal akses pemindaian.'),
+                backgroundColor: Colors.red,
+              ),
+            );
             return;
           }
+
+          // Tutup Snackbar setelah data berhasil dimuat
+          ScaffoldMessenger.of(context).hideCurrentSnackBar();
+
           await _openScanner(position);
         },
       ),

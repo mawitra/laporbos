@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors
+// ignore_for_file: prefer_const_constructors, unnecessary_string_interpolations, must_be_immutable, unused_local_variable, file_names, non_constant_identifier_names, avoid_print, avoid_unnecessary_containers
 
 import 'dart:io';
 
@@ -108,9 +108,9 @@ class _AbsenHariIniState extends State<AbsenHariIni> {
         break;
       case "Shiff 2 jam 08:30 - 17:30":
         selectedShiftStartTime = DateTime(DateTime.now().year,
-            DateTime.now().month, DateTime.now().day, 8, 3, 0);
+            DateTime.now().month, DateTime.now().day, 8, 30, 0);
         selectedShiftEndTime = DateTime(DateTime.now().year,
-            DateTime.now().month, DateTime.now().day, 17, 3, 0);
+            DateTime.now().month, DateTime.now().day, 17, 30, 0);
         break;
       case "Shiff 3 jam 09:00 - 18:00":
         selectedShiftStartTime = DateTime(DateTime.now().year,
@@ -253,32 +253,30 @@ class ListCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    List<AttendanceData> todayAttendanceList = attendanceList
+        .where(
+            (attendance) => isToday(DateTime.parse(attendance.attendanceDate)))
+        .toList();
     return Column(
-      children: attendanceList
-          .where((attendance) =>
-              isToday(DateTime.parse(attendance.attendanceDate)))
-          .map((attendance) {
+      children: todayAttendanceList.map((attendance) {
         DateTime attendanceDateTime = DateTime.parse(attendance.attendanceDate);
 
-        DateTime expectedStartTime = selectedShiftStartTime ??
-            DateTime
-                .now(); // Use DateTime.now() as a fallback value or choose a default value
+        DateTime expectedStartTime = selectedShiftStartTime ?? DateTime.now();
 
-        DateTime expectedEndTime = selectedShiftEndTime ??
-            DateTime
-                .now(); // Use DateTime.now() as a fallback value or choose a default value
+        DateTime expectedEndTime = selectedShiftEndTime ?? DateTime.now();
 
         bool isOnTimeOrEarly = !attendanceDateTime.isAfter(expectedStartTime);
+        bool isOnTimeOrEarlys = !attendanceDateTime.isBefore(expectedStartTime);
 
         Duration latenessDuration = isOnTimeOrEarly
             ? Duration()
             : attendanceDateTime.difference(expectedStartTime);
 
         Color textColor = isOnTimeOrEarly ? Colors.green : Colors.red;
+
         return Container(
           padding: EdgeInsets.only(
             left: 10.w,
-            right: 10.w,
             top: 10.h,
             bottom: 10.h,
           ),
@@ -307,6 +305,7 @@ class ListCard extends StatelessWidget {
                     File(attendance.attendancePic), // Use the actual file path
                     width: 70.w,
                     height: 90.h,
+                    fit: BoxFit.cover,
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -364,12 +363,12 @@ class ListCard extends StatelessWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            if (attendance.status == 'In' && isOnTimeOrEarly)
+                            if (attendance.status == 'In' && !isOnTimeOrEarlys)
                               Text(
-                                'Absen Masuk Tepat Waktu.',
+                                'Absen Masuk jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
                                 style: TextStyle(color: textColor),
                               ),
-                            if (attendance.status == 'Out' && isOnTimeOrEarly)
+                            if (attendance.status == 'Out' && !isOnTimeOrEarly)
                               Text(
                                 'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
                                 style: TextStyle(color: Colors.brown),
@@ -408,8 +407,21 @@ class ListCard extends StatelessWidget {
                                     ),
                                   ],
                                 ),
+                                Row(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      selectedShiff!,
+                                      style: TextStyle(
+                                        color: AppColor.primaryColor,
+                                        fontSize: 14.sp,
+                                        fontWeight: FontWeight.w600,
+                                      ),
+                                    ),
+                                  ],
+                                ),
                                 SizedBox(
-                                  height: 20.h,
+                                  height: 10.h,
                                 ),
                                 Container(
                                   height: 1.h,
@@ -605,8 +617,8 @@ class ListCard extends StatelessWidget {
                                           ],
                                         ),
                                         Column(
-                                          // crossAxisAlignment:
-                                          //     CrossAxisAlignment.,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.end,
                                           mainAxisAlignment:
                                               MainAxisAlignment.spaceBetween,
                                           children: [
@@ -627,9 +639,9 @@ class ListCard extends StatelessWidget {
                                                 children: [
                                                   if (attendance.status ==
                                                           'In' &&
-                                                      isOnTimeOrEarly)
+                                                      !isOnTimeOrEarlys)
                                                     Text(
-                                                      'Absen Tepat Waktu.',
+                                                      'Absen Masuk jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
                                                       style: TextStyle(
                                                           color: textColor),
                                                       maxLines: 2,
@@ -639,7 +651,7 @@ class ListCard extends StatelessWidget {
                                                     ),
                                                   if (attendance.status ==
                                                           'Out' &&
-                                                      isOnTimeOrEarly)
+                                                      isOnTimeOrEarlys)
                                                     Text(
                                                       'Absen Pulang jam ${DateFormat('HH:mm').format(DateTime.parse(attendance.attendanceDate))}',
                                                       style: TextStyle(

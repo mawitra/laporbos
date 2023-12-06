@@ -1,4 +1,4 @@
-// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, unused_import, unused_local_variable
+// ignore_for_file: prefer_const_constructors, use_build_context_synchronously, avoid_print, unused_import, unused_local_variable, file_names
 import 'package:flutter/material.dart';
 import 'package:laporbos/model/auth.dart';
 import 'package:laporbos/screens/auth/login.dart';

@@ -64,6 +64,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
           child: Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.center,
                 children: [
                   // ClipOval(
                   //   child: Image.file(
@@ -77,32 +78,36 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   //   width: 10.w,
                   // ),
                   Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
                       if (userProvider.user != null)
                         Text(
                           userProvider.user!.officerName,
-                          style:
-                              TextStyle(fontSize: 15.sp, color: Colors.black),
+                          style: TextStyle(
+                              fontSize: 20.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
                         ),
                       SizedBox(height: 5.h),
                       if (userProvider.user != null)
                         Text(
                           userProvider.user!.officerID,
-                          style:
-                              TextStyle(fontSize: 15.sp, color: Colors.black),
+                          style: TextStyle(
+                              fontSize: 15.sp,
+                              color: Colors.black,
+                              fontWeight: FontWeight.bold),
                         ),
                     ],
                   )
                 ],
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               Divider(
                 thickness: 1,
                 height: 10.h,
                 color: Colors.black,
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               DrawerItem(
                 name: 'Home',
                 icon: Icons.home,
@@ -116,7 +121,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ));
                 },
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               DrawerItem(
                 name: 'Daftar Absensi',
                 icon: Icons.assignment_outlined,
@@ -130,10 +135,10 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ));
                 },
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               DrawerItem(
                 name: 'Absen Masuk',
-                icon: Icons.drive_folder_upload,
+                icon: Icons.unarchive_outlined,
                 onTap: () {
                   widget.onIndexSelected(2);
                   Navigator.of(context).pushReplacement(MaterialPageRoute(
@@ -144,9 +149,9 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ));
                 },
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               DrawerItem(
-                name: 'Absen Keluar',
+                name: 'Absen pulang',
                 icon: Icons.archive_outlined,
                 onTap: () {
                   widget.onIndexSelected(3);
@@ -158,7 +163,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
                   ));
                 },
               ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               Divider(
                 thickness: 1,
                 height: 10.h,
@@ -170,7 +175,7 @@ class _CustomDrawerState extends State<CustomDrawer> {
               //   icon: Icons.settings,
               //   onTap: () {},
               // ),
-              SizedBox(height: 30.h),
+              SizedBox(height: 20.h),
               DrawerItem(
                 name: 'Log out',
                 icon: Icons.logout,
